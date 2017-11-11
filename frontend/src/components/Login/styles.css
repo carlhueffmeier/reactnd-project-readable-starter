@@ -1,0 +1,45 @@
+.login-modal-close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 2rem;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.login-modal-close-btn:active,
+.login-modal-close-btn:focus {
+  outline: none;
+  background: transparent;
+}
+
+.login-modal-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 3rem 2rem;
+}
+
+.login-modal-input {
+  margin-bottom: 1rem;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.login-modal-error-text {
+  color: #f44336;
+  height: 1rem;
+}
+
+.btn.login-modal-login-with-google-btn {
+  background-color: #fff;
+  border: none;
+  color: #000;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

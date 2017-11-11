@@ -404,11 +404,13 @@ npm i -S prop-types redux react-redux redux-thunk react-router-dom
 ```
 
 Next let's create our directory structure.
+
 ```
 mkdir -p src/{redux/modules,store,containers,components}
 ```
 
 There are just a few changes I want to make before we get down to our actions and reducers. To facilitate the import of modules let's add the `src` directory to our `NODE_PATH`. That allows us to use absolute paths for our imports.
+
 ```
 [frontend/.env]
 
@@ -416,11 +418,13 @@ NODE_PATH=src/
 ```
 
 We are also going to delete all the files from the boilerplate we won't need.
+
 ```
 rm src/{App.css,App.js,App.test.js}
 ```
 
 Ok, finally let's go ahead and write our users reducer.
+
 ```
 [frontend/src/redux/modules/users.js]
 
@@ -548,10 +552,12 @@ const rootReducer = combineReducers({
 
 export default rootReducer;
 ```
+
 We just have to make sure we update this file every time we add a new reducer.
 
 
 Now that we have a basic reducer up and going, we can create our store. To keep everything neet and organized, let's do it in a separate file.
+
 ```
 [frontend/store/createStore.js]
 
@@ -581,6 +587,7 @@ import { render } from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import Root from 'containers/Root';
 import configureStore from 'store/configureStore';
+import './index.css'
 
 const store = configureStore();
 
@@ -591,10 +598,11 @@ render(
   document.getElementById('root')
 );
 ```
+
 We pass the newly create store to our `Root` component, and wrap it in a `Router`.
 
-
 We will create a new folder for our `Root` container.
+
 ```
 [frontend/src/containers/Root/RootContainer.js]
 
@@ -616,9 +624,758 @@ RootContainer.propTypes = {
 
 export default RootContainer;
 ```
+
 Creating a new folder for all components seems unnecessary at the moment, but it starts to make sense once we add CSS to some of them. To keep the import path simple, let's use our `index.js` trick again.
+
 ```
 [frontend/src/containers/Root/index.js]
 
 export { default } from './RootContainer';
+```
+
+Et voila, we have our first output.
+
+### Authentication Part 1: Fake Authentication
+Alright, with redux and router set up, let's start with the most difficult part of the application: Authentication.
+
+There is one step I want to do in preparation for that, let's quickly set up our normalization schema. When we begin to process data from our server, we want to get all necessary information at once, so we don't have to query multiple times. For example getting the post with an user id as author is pretty unpractical if we have to query the server for the user's display name for every post we display. That's why most APIs will give us everything we need in one big object and untangling it can be quite laboursome. That is where `normalizr` comes in. It takes a complex object and splits it up into the individual "entities". For example posts and users. We can then add the user to our redux store and don't have to bother our API again. Ok, so let's install it.
+```
+cd frontend
+npm i -S normalizr
+```
+To teach normalizr how to untangle our server responses, we need to set up a schema.
+```
+[frontend/src/schema/index.js]
+import { schema } from 'normalizr';
+
+export const categorySchema = new schema.Entity(
+  `categories`,
+  {},
+  { idAttribute: `path` }
+);
+export const userSchema = new schema.Entity(
+  `users`,
+  {},
+  { idAttribute: `uid` }
+);
+export const postSchema = new schema.Entity(`posts`, { author: userSchema });
+export const commentSchema = new schema.Entity(`comments`, {
+  author: userSchema
+});
+```
+
+Using our schema, we can now use the `normalize` function to process our API responses. Let's modify our users module accordingly and add a `fakeAuth` function.
+
+```
+import uniq from 'lodash';
+import { normalize } from 'normalizr';
+import { userSchema } from 'schema';
+
+const USER_AUTH = `USER_AUTH`;
+const USER_UNAUTH = `USER_UNAUTH`;
+const USER_FETCHING = `USER_FETCHING`;
+const USER_FETCHING_ERROR = `USER_FETCHING_ERROR`;
+const USER_FETCHING_DISMISS_ERROR = `USER_FETCHING_DISMISS_ERROR`;
+const USER_FETCHING_SUCCESS = `USER_FETCHING_SUCCESS`;
+
+function userAuth(uid) {
+  return {
+    type: USER_AUTH,
+    uid
+  };
+}
+
+function userUnauth() {
+  return {
+    type: USER_UNAUTH
+  };
+}
+
+function userFetching() {
+  return {
+    type: USER_FETCHING
+  };
+}
+
+function userFetchingError(error) {
+  return {
+    type: USER_FETCHING_ERROR,
+    error
+  };
+}
+
+export function userFetchingDismissError() {
+  return {
+    type: USER_FETCHING_DISMISS_ERROR
+  };
+}
+
+function userFetchingSuccess(payload) {
+  return {
+    type: USER_FETCHING_SUCCESS,
+    payload
+  };
+}
+
+function fakeAuth(username, password) {
+  return new Promise((resolve, reject) => {
+    console.log(`logging in ${username} (${password})`);
+    const result = {
+      uid: 1,
+      name: username
+    };
+    setTimeout(() => resolve({ data: result }), 2000);
+  });
+}
+
+export function localLogin(username, password) {
+  return dispatch => {
+    dispatch(userFetching());
+    return new Promise(resolve => {
+      fakeAuth(username, password)
+        .then(res => {
+          const normalizedData = normalize(res.data, userSchema);
+          dispatch(userFetchingSuccess(normalizedData));
+          dispatch(userAuth(res.data.uid));
+          resolve();
+        })
+        .catch(error => dispatch(userFetchingError(error)));
+    });
+  };
+}
+
+const initialState = {
+  isFetching: false,
+  error: ``,
+  isAuthed: false,
+  authedId: ``,
+  byId: {},
+  allIds: []
+};
+
+export default function users(state = initialState, action) {
+  switch (action.type) {
+    case USER_AUTH:
+      return {
+        ...state,
+        isAuthed: true,
+        authedId: action.uid
+      };
+    case USER_UNAUTH:
+      return {
+        ...state,
+        isAuthed: false,
+        authedId: ``
+      };
+    case USER_FETCHING:
+      return {
+        ...state,
+        isFetching: true,
+        error: ``
+      };
+    case USER_FETCHING_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        error: action.error
+      };
+    case USER_FETCHING_DISMISS_ERROR:
+      return {
+        ...state,
+        error: ``
+      };
+    case USER_FETCHING_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        error: ``,
+        byId: byId(state.byId, action),
+        allIds: allIds(state.allIds, action)
+      };
+    default:
+      return state;
+  }
+}
+
+function byId(state, action) {
+  switch (action.type) {
+    case USER_FETCHING_SUCCESS:
+      console.log(action);
+      return {
+        ...state,
+        ...action.payload.entities.users
+      };
+    default:
+      return state;
+  }
+}
+
+function allIds(state, action) {
+  switch (action.type) {
+    case USER_FETCHING_SUCCESS:
+      return uniq([...state, ...Object.keys(action.payload.entities.users)]);
+    default:
+      return state;
+  }
+}
+```
+
+Ok, next to the UI. I want to use a modal that asks for login information and displays a "Sign in with Google" button. We will use the package `react-modal`, so let's install it.
+
+```
+cd frontend
+npm i -S react-modal
+```
+
+We will split the login into a container and a component.
+
+```
+[frontend/src/containers/Login/LoginContainer.js]
+
+import { connect } from 'react-redux';
+import Login from 'components/Login';
+import * as modalActions from 'redux/modules/modal';
+import { localLogin, userFetchingDismissError } from 'redux/modules/users';
+
+function mapStateToProps({ modal, users }, props) {
+  return {
+    username: modal.username,
+    password: modal.password,
+    error: users.error,
+    isOpen: modal.isOpen,
+    isFetching: users.isFetching,
+    isSubmitDisabled:
+      modal.username.length === 0 ||
+      modal.password.length === 0 ||
+      users.isFetching
+  };
+}
+
+export default connect(mapStateToProps, {
+  ...modalActions,
+  localLogin,
+  userFetchingDismissError
+})(Login);
+```
+
+As before, we create a new folder and add an `index.js` for easier import.
+
+As you can see there are a few things we have to write in order for this to work.
+First let's build the modal module.
+
+```
+[frontend/src/redux/modules/modal.js]
+
+const MODAL_OPEN = `MODAL_OPEN`;
+const MODAL_CLOSE = `MODAL_CLOSE`;
+const MODAL_UPDATE_USERNAME = `MODAL_UPDATE_USERNAME`;
+const MODAL_UPDATE_PASSWORD = `MODAL_UPDATE_PASSWORD`;
+
+export function modalOpen() {
+  return {
+    type: MODAL_OPEN
+  };
+}
+
+export function modalClose() {
+  return {
+    type: MODAL_CLOSE
+  };
+}
+
+export function modalUpdateUsername(username) {
+  return {
+    type: MODAL_UPDATE_USERNAME,
+    username
+  };
+}
+
+export function modalUpdatePassword(password) {
+  return {
+    type: MODAL_UPDATE_PASSWORD,
+    password
+  };
+}
+
+const initialState = {
+  username: '',
+  password: '',
+  isOpen: false
+};
+
+export default function modal(state = initialState, action) {
+  switch (action.type) {
+    case MODAL_OPEN:
+      return {
+        ...state,
+        isOpen: true
+      };
+    case MODAL_CLOSE:
+      return {
+        username: '',
+        password: '',
+        isOpen: false
+      };
+    case MODAL_UPDATE_USERNAME:
+      return {
+        ...state,
+        username: action.username
+      };
+    case MODAL_UPDATE_PASSWORD:
+      return {
+        ...state,
+        password: action.password
+      };
+    default:
+      return state;
+  }
+}
+```
+
+Ok, that should work. Next let's build out our component.
+
+```
+[frontend/src/components/Login/Login.js]
+
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactModal from 'react-modal';
+import Spinner from 'components/Spinner';
+import './styles.css';
+
+const modalStyles = {
+  content: {
+    width: 350,
+    margin: '0px auto',
+    height: 300,
+    borderRadius: 5,
+    background: '#EBEBEB',
+    padding: 0
+  }
+};
+
+Login.propTypes = {
+  modalOpen: PropTypes.func.isRequired,
+  modalClose: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  isSubmitDisabled: PropTypes.bool.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  username: PropTypes.string.isRequired,
+  password: PropTypes.string.isRequired,
+  error: PropTypes.string.isRequired,
+  modalUpdateUsername: PropTypes.func.isRequired,
+  modalUpdatePassword: PropTypes.func.isRequired,
+  localLogin: PropTypes.func.isRequired
+};
+
+export default function Login(props) {
+  function onSubmit(event) {
+    event.preventDefault();
+    const { localLogin, username, password } = props;
+    localLogin(username, password).then(() => props.modalClose());
+  }
+
+  function onClose(event) {
+    props.userFetchingDismissError();
+    props.modalClose();
+  }
+
+  return (
+    <div>
+      <button className="btn btn-primary login-btn" onClick={props.modalOpen}>
+        Login
+      </button>
+      <ReactModal
+        style={modalStyles}
+        isOpen={props.isOpen}
+        onRequestClose={onClose}
+      >
+        <div>
+          <button onClick={onClose} className="login-modal-close-btn">
+            ×
+          </button>
+        </div>
+        <form className="login-modal-form" onSubmit={onSubmit}>
+          <input
+            onChange={e => props.modalUpdateUsername(e.target.value)}
+            value={props.username}
+            maxLength={140}
+            type="text"
+            className="login-modal-input"
+            placeholder="Username"
+          />
+          <input
+            onChange={e => props.modalUpdatePassword(e.target.value)}
+            value={props.password}
+            maxLength={140}
+            type="password"
+            className="login-modal-input"
+            placeholder="Password"
+          />
+          <span className="login-modal-error-text">{props.error}</span>
+          <button
+            className="btn btn-primary login-modal-submit-btn"
+            disabled={props.isSubmitDisabled}
+            type="submit"
+          >
+            {props.isFetching ? <Spinner size={30} color="white" /> : `Login`}
+          </button>
+          <a href="/auth/google">
+            <div className="btn login-modal-login-with-google-btn">
+              <span>Login with Google</span>
+            </div>
+          </a>
+        </form>
+      </ReactModal>
+    </div>
+  );
+}
+```
+
+To give our buttons a uniform look, let's add general button styles to the `index.css`. We will also change the default font for our app here.
+
+```
+[frontend/src/index.css]
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Buttons */
+.btn {
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 500;
+  height: 2.6rem;
+  padding: 0 2rem;
+  border: 0;
+  border-radius: 2px;
+  background: rgba(158, 158, 158, 0.2);
+  color: #000;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.btn:active,
+.btn:focus {
+  background: rgba(158, 158, 158, 0.4);
+  outline: none;
+}
+
+.btn.btn-primary {
+  background: #2196f3;
+  color: #fff;
+}
+
+.btn.btn-primary:hover,
+.btn.btn-primary:active,
+.btn.btn-primary:focus {
+  background: #39a1f4;
+}
+```
+
+To load our new font, we will add this code to our `<head>` in the `index.html` file.
+And while we have the file open, let's also change the title.
+
+```
+[frontend/public/index.html]
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+```
+
+And now to the `styles.css` for our `Login` component.
+
+```
+[frontend/src/component/Modal/styles.css]
+
+.login-modal-close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 2rem;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.login-modal-close-btn:active,
+.login-modal-close-btn:focus {
+  outline: none;
+  background: transparent;
+}
+
+.login-modal-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 3rem 2rem;
+}
+
+.login-modal-input {
+  margin-bottom: 1rem;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.login-modal-error-text {
+  color: #f44336;
+  height: 1rem;
+}
+
+.btn.login-modal-login-with-google-btn {
+  background-color: #fff;
+  border: none;
+  color: #000;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+```
+
+See the Spinner component we imported in our `Login` component. Let's write that, with the help of the awesome SpinKit repository by Tobias Ahlin.
+
+```
+[frontend/src/components/Spinner/Spinner.js]
+
+import React from 'react';
+import './styles.css';
+
+// Spinner from SpinKit by Tobias Ahlin
+// https://github.com/tobiasahlin/SpinKit/blob/master/css/spinners/8-circle.css
+
+export default function Spinner({ size = 40, color = `#333` }) {
+  const styles = {
+    width: size,
+    height: size,
+    color
+  };
+  return (
+    <div className="sk-circle" style={styles}>
+      <div className="sk-circle1 sk-child" />
+      <div className="sk-circle2 sk-child" />
+      <div className="sk-circle3 sk-child" />
+      <div className="sk-circle4 sk-child" />
+      <div className="sk-circle5 sk-child" />
+      <div className="sk-circle6 sk-child" />
+      <div className="sk-circle7 sk-child" />
+      <div className="sk-circle8 sk-child" />
+      <div className="sk-circle9 sk-child" />
+      <div className="sk-circle10 sk-child" />
+      <div className="sk-circle11 sk-child" />
+      <div className="sk-circle12 sk-child" />
+    </div>
+  );
+}
+```
+
+And the CSS file, only slightly modified from the Github page.
+
+```
+.sk-circle {
+  display: inline-block;
+  position: relative;
+}
+.sk-circle .sk-child {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.sk-circle .sk-child:before {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 15%;
+  height: 15%;
+  background-color: currentColor;
+  border-radius: 100%;
+  -webkit-animation: sk-circleBounceDelay 1.2s infinite ease-in-out both;
+  animation: sk-circleBounceDelay 1.2s infinite ease-in-out both;
+}
+.sk-circle .sk-circle2 {
+  -webkit-transform: rotate(30deg);
+  -ms-transform: rotate(30deg);
+  transform: rotate(30deg);
+}
+.sk-circle .sk-circle3 {
+  -webkit-transform: rotate(60deg);
+  -ms-transform: rotate(60deg);
+  transform: rotate(60deg);
+}
+.sk-circle .sk-circle4 {
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.sk-circle .sk-circle5 {
+  -webkit-transform: rotate(120deg);
+  -ms-transform: rotate(120deg);
+  transform: rotate(120deg);
+}
+.sk-circle .sk-circle6 {
+  -webkit-transform: rotate(150deg);
+  -ms-transform: rotate(150deg);
+  transform: rotate(150deg);
+}
+.sk-circle .sk-circle7 {
+  -webkit-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.sk-circle .sk-circle8 {
+  -webkit-transform: rotate(210deg);
+  -ms-transform: rotate(210deg);
+  transform: rotate(210deg);
+}
+.sk-circle .sk-circle9 {
+  -webkit-transform: rotate(240deg);
+  -ms-transform: rotate(240deg);
+  transform: rotate(240deg);
+}
+.sk-circle .sk-circle10 {
+  -webkit-transform: rotate(270deg);
+  -ms-transform: rotate(270deg);
+  transform: rotate(270deg);
+}
+.sk-circle .sk-circle11 {
+  -webkit-transform: rotate(300deg);
+  -ms-transform: rotate(300deg);
+  transform: rotate(300deg);
+}
+.sk-circle .sk-circle12 {
+  -webkit-transform: rotate(330deg);
+  -ms-transform: rotate(330deg);
+  transform: rotate(330deg);
+}
+.sk-circle .sk-circle2:before {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+.sk-circle .sk-circle3:before {
+  -webkit-animation-delay: -1s;
+  animation-delay: -1s;
+}
+.sk-circle .sk-circle4:before {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+.sk-circle .sk-circle5:before {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+.sk-circle .sk-circle6:before {
+  -webkit-animation-delay: -0.7s;
+  animation-delay: -0.7s;
+}
+.sk-circle .sk-circle7:before {
+  -webkit-animation-delay: -0.6s;
+  animation-delay: -0.6s;
+}
+.sk-circle .sk-circle8:before {
+  -webkit-animation-delay: -0.5s;
+  animation-delay: -0.5s;
+}
+.sk-circle .sk-circle9:before {
+  -webkit-animation-delay: -0.4s;
+  animation-delay: -0.4s;
+}
+.sk-circle .sk-circle10:before {
+  -webkit-animation-delay: -0.3s;
+  animation-delay: -0.3s;
+}
+.sk-circle .sk-circle11:before {
+  -webkit-animation-delay: -0.2s;
+  animation-delay: -0.2s;
+}
+.sk-circle .sk-circle12:before {
+  -webkit-animation-delay: -0.1s;
+  animation-delay: -0.1s;
+}
+
+@-webkit-keyframes sk-circleBounceDelay {
+  0%,
+  80%,
+  100% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  40% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes sk-circleBounceDelay {
+  0%,
+  80%,
+  100% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  40% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+```
+
+Don't forget to add `index.js` as usual.
+
+
+Ok, with everything in place let's try adding it to our `Root` container for now.
+
+```
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Provider } from 'react-redux';
+import Login from 'containers/Login';
+
+const RootContainer = ({ store }) => (
+  <Provider store={store}>
+    <div className="app">
+      <h1>Readable</h1>
+      <Login />
+    </div>
+  </Provider>
+);
+
+RootContainer.propTypes = {
+  store: PropTypes.object.isRequired
+};
+
+export default RootContainer;
+```
+
+Seems to work.
+Changing the `fakeAuth` function to throw an error also gives us feedback, great!
+
+```
+function fakeAuth(username, password) {
+  return new Promise((resolve, reject) => {
+    console.log(`logging in ${username} (${password})`);
+    const result = {
+      uid: 1,
+      name: username
+    };
+    // setTimeout(() => resolve({ data: result }), 2000);
+    setTimeout(() => reject(`Bad, baaaaad error. I can't handle this..`), 2000);
+  });
+}
 ```
