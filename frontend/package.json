@@ -2,6 +2,14 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": {
+    "/auth": {
+      "target": "http://localhost:5000"
+    },
+    "/api": {
+      "target": "http://localhost:5000"
+    }
+  },
   "dependencies": {
     "normalizr": "^3.2.4",
     "prop-types": "^15.6.0",

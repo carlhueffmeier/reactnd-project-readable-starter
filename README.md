@@ -581,7 +581,10 @@ export default configureStore;
 ```
 
 We will use that function in our project's `index.js` file.
+
 ```
+[frontend/src/index.js]
+
 import React from 'react';
 import { render } from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -646,6 +649,7 @@ npm i -S normalizr
 To teach normalizr how to untangle our server responses, we need to set up a schema.
 ```
 [frontend/src/schema/index.js]
+
 import { schema } from 'normalizr';
 
 export const categorySchema = new schema.Entity(
@@ -667,6 +671,8 @@ export const commentSchema = new schema.Entity(`comments`, {
 Using our schema, we can now use the `normalize` function to process our API responses. Let's modify our users module accordingly and add a `fakeAuth` function.
 
 ```
+[frontend/src/redux/modules/users.js]
+
 import uniq from 'lodash';
 import { normalize } from 'normalizr';
 import { userSchema } from 'schema';
@@ -1342,6 +1348,8 @@ Don't forget to add `index.js` as usual.
 Ok, with everything in place let's try adding it to our `Root` container for now.
 
 ```
+[frontend/src/containers/Root/Root.js]
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
@@ -1367,6 +1375,8 @@ Seems to work.
 Changing the `fakeAuth` function to throw an error also gives us feedback, great!
 
 ```
+[frontend/src/redux/modules/users.js]
+
 function fakeAuth(username, password) {
   return new Promise((resolve, reject) => {
     console.log(`logging in ${username} (${password})`);
@@ -1379,3 +1389,324 @@ function fakeAuth(username, password) {
   });
 }
 ```
+
+### Authentication Part 2: Backend
+Let's leave our react application for a moment and look at how we can do authentication on our backend.
+Before we begin adding functionality, I want to structure the code a little bit.
+
+```
+cd api-server
+mkdir routes services config
+mv categories.js comments.js posts.js services
+mv config.js config
+touch routes/{root.js,categories.js,comments.js,posts.js}
+```
+
+While we are in the terminal, let's also install all the necessary packages. Actually `morgan` is optional, it is just a logging tool giving us some feedback while we are testing our server.
+
+```
+npm i -S cookie-session passport passport-google-oauth20 passport-local morgan
+```
+Let's extract the routes from `server.js`. We just have to cut & paste the routes into the respective files and wrap it in a function taking `app` as argument. We also need to require the necessary services and update all `require` statements to the new paths.
+
+After doing that our routes will look something like this.
+
+```
+[api-server/routes/categories.js]
+
+const categories = require('../services/categories');
+const posts = require('../services/posts');
+
+module.exports = app => {
+  app.get('/categories', (req, res) => {
+    categories.getAll(req.token).then(
+      data => res.send(data),
+      error => {
+        console.error(error);
+        res.status(500).send({
+          error: 'There was an error.'
+        });
+      }
+    );
+  });
+
+  app.get('/:category/posts', (req, res) => {
+    posts.getByCategory(req.token, req.params.category).then(
+      data => res.send(data),
+      error => {
+        console.error(error);
+        res.status(500).send({
+          error: 'There was an error.'
+        });
+      }
+    );
+  });
+};
+```
+
+And our `server.js` will be clean and simple.
+
+```
+[api-server/server.js]
+
+require('dotenv').config();
+
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const config = require('./config/config');
+
+const app = express();
+
+app.use(express.static('public'));
+app.use(cors());
+app.use(morgan('dev'));
+
+require('./routes/root')(app);
+require('./routes/categories')(app);
+require('./routes/posts')(app);
+require('./routes/comments')(app);
+
+app.listen(config.port, () => {
+  console.log('Server listening on port %s, Ctrl+C to stop', config.port);
+});
+```
+
+I want my authentication endpoints separate from my api endpoints. So let's change the routes to reflect that.
+
+```
+[api-server/routes/categories.js]
+
+const categories = require('../services/categories');
+const posts = require('../services/posts');
+
+module.exports = app => {
+  app.get('/api/categories', (req, res) => {
+    categories.getAll(req.token).then(
+      data => res.send(data),
+      error => {
+        console.error(error);
+        res.status(500).send({
+          error: 'There was an error.'
+        });
+      }
+    );
+  });
+
+  app.get('/api/:category/posts', (req, res) => {
+    posts.getByCategory(req.token, req.params.category).then(
+      data => res.send(data),
+      error => {
+        console.error(error);
+        res.status(500).send({
+          error: 'There was an error.'
+        });
+      }
+    );
+  });
+};
+```
+
+Next, let's sign up for Google OAuth (or the Google+ API as it is called in the developer console). I will save my client id and secret in a separate `keys.js` file. That way I can add it to my `.gitignore` to keep it secret.
+
+```
+[api-server/config/keys.js]
+
+module.exports = {
+  googleClientID:
+    'notsosecretclientid',
+  googleClientSecret: 'supersecret',
+  cookieKey: 'alsosecret'
+};
+```
+```
+[.gitignore]
+
+node_modules/
+.DS_Store
+api-server/config/keys.js
+```
+
+Before we set up passport and the `auth` route, we need a way to store our user data. Normally we would use a database like mongodb for that, but I want to keep the requirements to run the application minimal. That is why we will store it non-persistent in a simple Javascript object.
+
+The structure will be similar to the other services, but we won't use the authentication header to keep separate databases. That would make the OAuth flow even more complicated than it already is.
+
+```
+[api-server/services/users.js]
+
+const userData = {
+  mulder: {
+    uid: 'mulder',
+    displayName: 'Fox Mulder'
+  },
+  '123': {
+    uid: '123',
+    displayName: 'thingtwo'
+  },
+  '124': {
+    uid: '124',
+    displayName: 'thingone'
+  }
+};
+
+const passwords = {
+  mulder: 'trustno1'
+};
+
+const getAll = () => new Promise(res => res(userData));
+
+const get = uid => new Promise(res => res(userData[uid] || null));
+
+const add = user =>
+  new Promise(res => {
+    userData[user.uid] = {
+      uid: user.uid,
+      displayName: user.displayName
+    };
+    res(userData[user.uid]);
+  });
+
+const populateAuthor = item => ({
+  ...item,
+  author: userData[item.author] || null
+});
+
+const verifyPassword = (user, password) => passwords[user.uid] === password;
+
+module.exports = {
+  getAll,
+  get,
+  add,
+  populateAuthor,
+  verifyPassword
+};
+```
+
+Ok, next our passport service
+
+```
+[api-server/services/passport.js]
+
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
+const keys = require('../config/keys');
+const users = require('./users');
+
+passport.serializeUser((user, done) => {
+  console.log('serialize ', user);
+  done(null, user.uid);
+});
+
+passport.deserializeUser(async (uid, done) => {
+  console.log('deserialize ', uid);
+  const user = await users.get(uid);
+  done(null, user);
+});
+
+const getPrimaryEmail = profile => {
+  const primary = profile.emails.find(email => email.type === 'account');
+  return primary ? primary.value : null;
+};
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientSecret: keys.googleClientSecret,
+      clientID: keys.googleClientID,
+      callbackURL: '/auth/google/callback'
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      const existingUser = await users.get(profile.id);
+      if (existingUser) {
+        done(null, existingUser);
+      } else {
+        const newUser = await users.add({
+          uid: profile.id,
+          displayName: profile.displayName
+        });
+        done(null, newUser);
+      }
+    }
+  )
+);
+
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    const user = await users.get(username);
+    if (!user) {
+      return done(null, false, { message: 'Incorrect username.' });
+    }
+    if (!users.verifyPassword(user, password)) {
+      return done(null, false, { message: 'Incorrect password.' });
+    }
+    return done(null, user);
+  })
+);
+```
+
+Ok, let's put it all together in the `server.js` file.
+
+```
+[api-server/server.js]
+
+require('dotenv').config();
+
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+const config = require('./config/config');
+const keys = require('./config/keys');
+require('./services/passport.js');
+
+const app = express();
+
+app.use(express.static('public'));
+app.use(cors());
+app.use(morgan('dev'));
+app.use(
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in miliseconds
+    keys: [keys.cookieKey]
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+require('./routes/auth')(app);
+require('./routes/root')(app);
+require('./routes/categories')(app);
+require('./routes/posts')(app);
+require('./routes/comments')(app);
+
+app.listen(config.port, () => {
+  console.log('Server listening on port %s, Ctrl+C to stop', config.port);
+});
+```
+
+That should do it!
+
+Before we go on to the next section, let's try it out. To access the api server from our react application, it is convenient to configure proxy in the `package.json` of our frontend.
+
+```
+[frontend/package.json]
+
+  ...
+  "private": true,
+  "proxy": {
+    "/auth": {
+      "target": "http://localhost:5000"
+    },
+    "/api": {
+      "target": "http://localhost:5000"
+    }
+  },
+  ...
+```
+
+Please note: I changed the port to 5000, use whatever port your express server is running on. We need to restart our development server for the changes to take effect.
+
+Because we already set up the link correctly in our login modal, let's click on "Login with Google". We are successfully redirected to the Google Sign-in page! We can also verify whether the login info is correctly stored in our session by navigating to `http://localhost:3000/api/current_user`. This should return an object with `uid` and `displayName`.
+
