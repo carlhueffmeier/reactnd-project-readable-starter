@@ -1,14 +1,12 @@
 import { connect } from 'react-redux';
-import Login from 'components/Login';
-import * as modalActions from 'redux/modules/modal';
-import { localLogin, userFetchingDismissError } from 'redux/modules/users';
+import SignInForm from 'components/SignInForm';
+import { modalUpdateUsername, modalUpdatePassword } from 'redux/modules/modal';
 
-function mapStateToProps({ modal, users }, props) {
+function mapStateToProps({ modal, users }) {
   return {
     username: modal.username,
     password: modal.password,
     error: users.error,
-    isOpen: modal.isOpen,
     isFetching: users.isFetching,
     isSubmitDisabled:
       modal.username.length === 0 ||
@@ -18,7 +16,6 @@ function mapStateToProps({ modal, users }, props) {
 }
 
 export default connect(mapStateToProps, {
-  ...modalActions,
-  localLogin,
-  userFetchingDismissError
-})(Login);
+  modalUpdateUsername,
+  modalUpdatePassword
+})(SignInForm);

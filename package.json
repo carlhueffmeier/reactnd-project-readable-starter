@@ -19,5 +19,6 @@
   "homepage": "https://github.com/carlhueffmeier/reactnd-readable#readme",
   "devDependencies": {
     "concurrently": "^3.5.0"
-  }
+  },
+  "dependencies": {}
 }

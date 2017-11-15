@@ -1710,3 +1710,288 @@ Please note: I changed the port to 5000, use whatever port your express server i
 
 Because we already set up the link correctly in our login modal, let's click on "Login with Google". We are successfully redirected to the Google Sign-in page! We can also verify whether the login info is correctly stored in our session by navigating to `http://localhost:3000/api/current_user`. This should return an object with `uid` and `displayName`.
 
+
+### Authentication Part 3: Talking to our backend
+To make api requests, we will use the package `axios`.
+
+```
+cd frontend
+npm i -S axios
+```
+
+We will then replace the `fakeAuth` function inside our users module.
+
+```
+[frontend/src/redux/modules/users.js]
+
+export function localLogin(username, password) {
+  return dispatch => {
+    dispatch(userFetching());
+    return new Promise(resolve => {
+      axios
+        .post(`/auth/local`, { username, password })
+        .then(res => {
+          const normalizedData = normalize(res.data, userSchema);
+          dispatch(userFetchingSuccess(normalizedData));
+          dispatch(userAuth(res.data.uid));
+          resolve();
+        })
+        .catch(error =>
+          dispatch(userFetchingError(`Error during authentication.`))
+        );
+    });
+  };
+}
+```
+
+We also need a function to fetch the current user, thereby checking whether we are logged in or not. And a function to log the user out.
+
+```
+[frontend/src/redux/modules/users.js]
+
+export function fetchCurrentUser() {
+  return dispatch => {
+    dispatch(userFetching());
+    axios
+      .get(`/api/current_user`)
+      .then(res => {
+        if (res.data.uid) {
+          const normalizedData = normalize(res.data, userSchema);
+          dispatch(userFetchingSuccess(normalizedData));
+          dispatch(userAuth(res.data.uid));
+        } else {
+          dispatch(userUnauth());
+        }
+      })
+      .catch(() =>
+        dispatch(userFetchingError(`Error while fetching current user.`))
+      );
+  };
+}
+
+export function logout() {
+  return dispatch => {
+    axios
+      .get(`/api/logout`)
+      .then(() => dispatch(userUnauth()))
+      .catch(() => console.warn(`Error during logout.`));
+  };
+}
+```
+
+Now where would we call the `fetchCurrentUser` function? We wouldn't want to check whether the user is logged in on every page change.
+
+It is not ideal, but it would make sense to fetch the current user inside the Navigation Bar, that way `componentDidMount` will only be called when the user enters the site.
+
+Let's encapsulate the whole sign in / out functionality into one component. The outermost container just fetches the current user and thereby checks sign-in status.
+
+```
+[frontend/src/containers/Authentication/AuthenticationContainer.js]
+
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import SignInAndOutButton from 'components/SignInAndOutButton';
+import { fetchCurrentUser } from 'redux/modules/users';
+
+class AuthenticationContainer extends Component {
+  componentDidMount() {
+    this.props.fetchCurrentUser();
+  }
+
+  render() {
+    return <SignInAndOutButton />;
+  }
+}
+
+export default connect(null, { fetchCurrentUser })(AuthenticationContainer);
+```
+
+Then we have the `SignInAndOutButton` component which just displays a "Sign In" button when we are logged out and a "Sign Out" button when we are signed in.
+
+```
+[frontend/src/components/SignInAndOutButton/SignInAndOutButton.js]
+
+import React from 'react';
+import { connect } from 'react-redux';
+import SignInButton from 'containers/SignInButton';
+import SignOutButton from 'components/SignOutButton';
+import SpinningButton from 'components/SpinningButton';
+
+function SignInAndOutButton({ isAuthed, isFetching }) {
+  if (isFetching) {
+    return <SpinningButton className="btn btn-sm" />;
+  } else {
+    return isAuthed ? (
+      <SignOutButton className="btn btn-sm" />
+    ) : (
+      <SignInButton className="btn btn-sm btn-primary" />
+    );
+  }
+}
+
+function mapStateToProps({ users }) {
+  return {
+    isAuthed: users.isAuthed,
+    isFetching: users.isFetching
+  };
+}
+
+export default connect(mapStateToProps)(SignInAndOutButton);
+```
+
+As you can see, I did not split the component into container and component. In this case I found it easier to keep everything in one file. We can always refactor later if the need arises.
+
+```
+[frontend/src/containers/SignInButton/SignInButtonContainer.js]
+
+import { connect } from 'react-redux';
+import SignInButton from 'components/SignInButton';
+import * as modalActions from 'redux/modules/modal';
+import { localLogin, userFetchingDismissError } from 'redux/modules/users';
+
+function mapStateToProps({ modal, users }, props) {
+  return {
+    username: modal.username,
+    password: modal.password,
+    error: users.error,
+    isOpen: modal.isOpen,
+    isFetching: users.isFetching,
+    isSubmitDisabled:
+      modal.username.length === 0 ||
+      modal.password.length === 0 ||
+      users.isFetching,
+    buttonProps: props
+  };
+}
+
+export default connect(mapStateToProps, {
+  ...modalActions,
+  localLogin,
+  userFetchingDismissError
+})(SignInButton);
+```
+
+```
+[frontend/src/components/SignInButton/SignInButton.js]
+
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactModal from 'react-modal';
+import Spinner from 'components/Spinner';
+import './styles.css';
+
+const modalStyles = {
+  content: {
+    width: 350,
+    margin: '0px auto',
+    height: 300,
+    borderRadius: 5,
+    background: '#EBEBEB',
+    padding: 0
+  }
+};
+
+SignInButton.propTypes = {
+  modalOpen: PropTypes.func.isRequired,
+  modalClose: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  isSubmitDisabled: PropTypes.bool.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  username: PropTypes.string.isRequired,
+  password: PropTypes.string.isRequired,
+  error: PropTypes.string.isRequired,
+  modalUpdateUsername: PropTypes.func.isRequired,
+  modalUpdatePassword: PropTypes.func.isRequired,
+  localLogin: PropTypes.func.isRequired,
+  buttonProps: PropTypes.object
+};
+
+export default function SignInButton(props) {
+  function onSubmit(event) {
+    event.preventDefault();
+    const { localLogin, username, password } = props;
+    localLogin(username, password).then(() => props.modalClose());
+  }
+
+  function onClose(event) {
+    props.userFetchingDismissError();
+    props.modalClose();
+  }
+
+  return (
+    <div>
+      <button {...props.buttonProps} onClick={props.modalOpen}>
+        Sign in
+      </button>
+      <ReactModal
+        style={modalStyles}
+        isOpen={props.isOpen}
+        onRequestClose={onClose}
+      >
+        <div>
+          <button onClick={onClose} className="login-modal-close-btn">
+            ×
+          </button>
+        </div>
+        <form className="login-modal-form" onSubmit={onSubmit}>
+          <input
+            onChange={e => props.modalUpdateUsername(e.target.value)}
+            value={props.username}
+            maxLength={140}
+            type="text"
+            className="login-modal-input"
+            placeholder="Username"
+          />
+          <input
+            onChange={e => props.modalUpdatePassword(e.target.value)}
+            value={props.password}
+            maxLength={140}
+            type="password"
+            className="login-modal-input"
+            placeholder="Password"
+          />
+          <span className="login-modal-error-text">{props.error}</span>
+          <button
+            className="btn btn-primary login-modal-submit-btn"
+            disabled={props.isSubmitDisabled}
+            type="submit"
+          >
+            {props.isFetching ? <Spinner size={30} color="white" /> : `Sign In`}
+          </button>
+          <a href="/auth/google">
+            <div className="btn login-modal-login-with-google-btn">
+              <span>Sign in with Google</span>
+            </div>
+          </a>
+        </form>
+      </ReactModal>
+    </div>
+  );
+}
+```
+
+The `SignInButton` component is a little bit long. Let's try to extract the form. I am not completely happy with the form, modal and button being entangled like that. Will revisit later.
+
+Also the logout button.
+
+```
+[frontend/src/components/SignOutButton/SignOutButton.js]
+
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { logout } from 'redux/modules/users';
+
+function SignOutButton({ logout, ...props }) {
+  return (
+    <button {...props} onClick={logout}>
+      Sign out
+    </button>
+  );
+}
+
+SignOutButton.propTypes = {
+  logout: PropTypes.func.isRequired
+};
+
+export default connect(null, { logout })(SignOutButton);

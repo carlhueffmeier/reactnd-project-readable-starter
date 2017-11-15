@@ -1,3 +1,4 @@
+html,
 body {
   margin: 0;
   padding: 0;
@@ -12,7 +13,7 @@ a {
 /* Buttons */
 .btn {
   text-transform: uppercase;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 500;
   height: 2.6rem;
   padding: 0 2rem;
@@ -34,6 +35,11 @@ a {
 .btn:focus {
   background: rgba(158, 158, 158, 0.4);
   outline: none;
+}
+
+.btn.btn-sm {
+  padding: 0 1rem;
+  font-size: 1rem;
 }
 
 .btn.btn-primary {

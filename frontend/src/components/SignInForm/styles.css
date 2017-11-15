@@ -1,21 +1,3 @@
-.login-modal-close-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding-left: 10px;
-  padding-right: 10px;
-  font-size: 2rem;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-}
-
-.login-modal-close-btn:active,
-.login-modal-close-btn:focus {
-  outline: none;
-  background: transparent;
-}
-
 .login-modal-form {
   display: flex;
   flex-direction: column;

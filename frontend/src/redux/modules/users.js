@@ -1,10 +1,12 @@
 import uniq from 'lodash';
 import { normalize } from 'normalizr';
 import { userSchema } from 'schema';
+import axios from 'axios';
 
 const USER_AUTH = `USER_AUTH`;
 const USER_UNAUTH = `USER_UNAUTH`;
 const USER_FETCHING = `USER_FETCHING`;
+const USER_FETCHING_CANCEL = `USER_FETCHING_CANCEL`;
 const USER_FETCHING_ERROR = `USER_FETCHING_ERROR`;
 const USER_FETCHING_DISMISS_ERROR = `USER_FETCHING_DISMISS_ERROR`;
 const USER_FETCHING_SUCCESS = `USER_FETCHING_SUCCESS`;
@@ -35,6 +37,12 @@ function userFetchingError(error) {
   };
 }
 
+export function userFetchingCancel() {
+  return {
+    type: USER_FETCHING_CANCEL
+  };
+}
+
 export function userFetchingDismissError() {
   return {
     type: USER_FETCHING_DISMISS_ERROR
@@ -48,36 +56,56 @@ function userFetchingSuccess(payload) {
   };
 }
 
-function fakeAuth(username, password) {
-  return new Promise((resolve, reject) => {
-    console.log(`logging in ${username} (${password})`);
-    const result = {
-      uid: 1,
-      name: username
-    };
-    setTimeout(() => resolve({ data: result }), 2000);
-    // setTimeout(() => reject(`Bad, baaaaad error. I can't handle this..`), 2000);
-  });
-}
-
 export function localLogin(username, password) {
   return dispatch => {
     dispatch(userFetching());
     return new Promise(resolve => {
-      fakeAuth(username, password)
+      axios
+        .post(`/auth/local`, { username, password })
         .then(res => {
           const normalizedData = normalize(res.data, userSchema);
           dispatch(userFetchingSuccess(normalizedData));
           dispatch(userAuth(res.data.uid));
           resolve();
         })
-        .catch(error => dispatch(userFetchingError(error)));
+        .catch(error =>
+          dispatch(userFetchingError(`Error during authentication.`))
+        );
     });
   };
 }
 
+export function fetchCurrentUser() {
+  return dispatch => {
+    dispatch(userFetching());
+    axios
+      .get(`/api/current_user`)
+      .then(res => {
+        if (res.data.uid) {
+          const normalizedData = normalize(res.data, userSchema);
+          dispatch(userFetchingSuccess(normalizedData));
+          dispatch(userAuth(res.data.uid));
+        } else {
+          dispatch(userFetchingCancel());
+        }
+      })
+      .catch(() =>
+        dispatch(userFetchingError(`Error while fetching current user.`))
+      );
+  };
+}
+
+export function logout() {
+  return dispatch => {
+    axios
+      .get(`/api/logout`)
+      .then(() => dispatch(userUnauth()))
+      .catch(() => console.warn(`Error during logout.`));
+  };
+}
+
 const initialState = {
-  isFetching: false,
+  isFetching: true,
   error: ``,
   isAuthed: false,
   authedId: ``,
@@ -104,6 +132,11 @@ export default function users(state = initialState, action) {
         ...state,
         isFetching: true,
         error: ``
+      };
+    case USER_FETCHING_CANCEL:
+      return {
+        ...state,
+        isFetching: false
       };
     case USER_FETCHING_ERROR:
       return {
