@@ -1,6 +1,7 @@
-import { connect } from 'react-redux';
 import SignInForm from 'components/SignInForm';
+import { connect } from 'react-redux';
 import { modalUpdateUsername, modalUpdatePassword } from 'redux/modules/modal';
+import { localLogin } from 'redux/modules/users';
 
 function mapStateToProps({ modal, users }) {
   return {
@@ -17,5 +18,6 @@ function mapStateToProps({ modal, users }) {
 
 export default connect(mapStateToProps, {
   modalUpdateUsername,
-  modalUpdatePassword
+  modalUpdatePassword,
+  localLogin
 })(SignInForm);

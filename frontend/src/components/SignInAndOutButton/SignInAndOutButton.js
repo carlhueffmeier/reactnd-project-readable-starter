@@ -1,10 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import SignInButton from 'containers/SignInButton';
 import SignOutButton from 'components/SignOutButton';
 import SpinningButton from 'components/SpinningButton';
 
-function SignInAndOutButton({ isAuthed, isFetching }) {
+SignInAndOutButton.propTypes = {
+  isFetching: PropTypes.bool.isRequired,
+  isAuthed: PropTypes.bool.isRequired
+};
+export default function SignInAndOutButton({ isAuthed, isFetching }) {
   if (isFetching) {
     return <SpinningButton className="btn btn-sm" />;
   } else {
@@ -15,12 +19,3 @@ function SignInAndOutButton({ isAuthed, isFetching }) {
     );
   }
 }
-
-function mapStateToProps({ users }) {
-  return {
-    isAuthed: users.isAuthed,
-    isFetching: users.isFetching
-  };
-}
-
-export default connect(mapStateToProps)(SignInAndOutButton);

@@ -4,7 +4,7 @@ import Spinner from 'components/Spinner';
 import './styles.css';
 
 SignInForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func,
   isSubmitDisabled: PropTypes.bool.isRequired,
   isFetching: PropTypes.bool.isRequired,
   username: PropTypes.string.isRequired,
@@ -15,8 +15,20 @@ SignInForm.propTypes = {
 };
 
 export default function SignInForm(props) {
+  async function login() {
+    await props.localLogin(props.username, props.password);
+    if (props.onSuccess) {
+      props.onSuccess();
+    }
+  }
+
+  function onSubmit(event) {
+    event.preventDefault();
+    login();
+  }
+
   return (
-    <form className="login-modal-form" onSubmit={props.onSubmit}>
+    <form className="login-modal-form" onSubmit={onSubmit}>
       <input
         onChange={e => props.modalUpdateUsername(e.target.value)}
         value={props.username}
@@ -39,7 +51,7 @@ export default function SignInForm(props) {
         disabled={props.isSubmitDisabled}
         type="submit"
       >
-        {props.isFetching ? <Spinner size={30} color="white" /> : `Sign In`}
+        {props.isFetching ? <Spinner size={30} color="white" /> : `Sign in`}
       </button>
       <a href="/auth/google">
         <div className="btn login-modal-login-with-google-btn">
