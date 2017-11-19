@@ -1,11 +1,12 @@
 {
   "name": "reactnd-readable",
   "version": "1.0.0",
-  "description": "This is the starter project for the final assessment project for Udacity's Redux course where you will build a content and comment web app. Users will be able to post content to predefined categories, comment on their posts and other users' posts, and vote on posts and comments. Users will also be able to edit and delete posts and comments.",
+  "description":
+    "This is the starter project for the final assessment project for Udacity's Redux course where you will build a content and comment web app. Users will be able to post content to predefined categories, comment on their posts and other users' posts, and vote on posts and comments. Users will also be able to edit and delete posts and comments.",
   "scripts": {
     "server": "cd api-server && npm run dev",
     "client": "cd frontend && npm start",
-    "start": "concurrent \"npm run server\" \"npm run client\""
+    "start": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,5 @@
   "homepage": "https://github.com/carlhueffmeier/reactnd-readable#readme",
   "devDependencies": {
     "concurrently": "^3.5.0"
-  },
-  "dependencies": {}
+  }
 }
