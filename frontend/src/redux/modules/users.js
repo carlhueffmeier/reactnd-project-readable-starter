@@ -1,4 +1,5 @@
-import uniq from 'lodash';
+import { combineReducers } from 'redux';
+import { uniq, get } from 'lodash';
 import { normalize } from 'normalizr';
 import { userSchema } from 'schema';
 import axios from 'axios';
@@ -6,10 +7,10 @@ import axios from 'axios';
 const USER_AUTH = `USER_AUTH`;
 const USER_UNAUTH = `USER_UNAUTH`;
 const USER_FETCHING = `USER_FETCHING`;
-const USER_FETCHING_CANCEL = `USER_FETCHING_CANCEL`;
 const USER_FETCHING_ERROR = `USER_FETCHING_ERROR`;
-const USER_FETCHING_DISMISS_ERROR = `USER_FETCHING_DISMISS_ERROR`;
 const USER_FETCHING_SUCCESS = `USER_FETCHING_SUCCESS`;
+const USER_FETCHING_CANCEL = `USER_FETCHING_CANCEL`;
+const USER_FETCHING_DISMISS_ERROR = `USER_FETCHING_DISMISS_ERROR`;
 
 function userAuth(uid) {
   return {
@@ -37,6 +38,13 @@ function userFetchingError(error) {
   };
 }
 
+function userFetchingSuccess(payload) {
+  return {
+    type: USER_FETCHING_SUCCESS,
+    payload
+  };
+}
+
 export function userFetchingCancel() {
   return {
     type: USER_FETCHING_CANCEL
@@ -49,26 +57,25 @@ export function userFetchingDismissError() {
   };
 }
 
-function userFetchingSuccess(payload) {
-  return {
-    type: USER_FETCHING_SUCCESS,
-    payload
-  };
+function addAndAuthenticateUser(user, dispatch) {
+  const normalizedData = normalize(user, userSchema);
+  dispatch(userFetchingSuccess(normalizedData));
+  dispatch(userAuth(user.uid));
 }
 
 export function localLogin(username, password) {
   return dispatch => {
     dispatch(userFetching());
+    // Return promise to allow chaining like this:
+    // localLogin.then(/* close modal */)
     return new Promise(resolve => {
       axios
         .post(`/auth/local`, { username, password })
         .then(res => {
-          const normalizedData = normalize(res.data, userSchema);
-          dispatch(userFetchingSuccess(normalizedData));
-          dispatch(userAuth(res.data.uid));
+          addAndAuthenticateUser(res.data, dispatch);
           resolve();
         })
-        .catch(error =>
+        .catch(() =>
           dispatch(userFetchingError(`Error during authentication.`))
         );
     });
@@ -82,9 +89,7 @@ export function fetchCurrentUser() {
       .get(`/api/current_user`)
       .then(res => {
         if (res.data.uid) {
-          const normalizedData = normalize(res.data, userSchema);
-          dispatch(userFetchingSuccess(normalizedData));
-          dispatch(userAuth(res.data.uid));
+          addAndAuthenticateUser(res.data, dispatch);
         } else {
           dispatch(userFetchingCancel());
         }
@@ -104,82 +109,82 @@ export function logout() {
   };
 }
 
-const initialState = {
-  isFetching: true,
-  error: ``,
-  isAuthed: false,
-  authedId: ``,
-  byId: {},
-  allIds: []
-};
+// Reducer
 
-export default function users(state = initialState, action) {
+export default combineReducers({
+  isFetching,
+  isAuthed,
+  authedId,
+  error,
+  byId,
+  allIds
+});
+
+function isFetching(state = true, action) {
+  switch (action.type) {
+    case USER_FETCHING:
+      return true;
+    case USER_FETCHING_ERROR:
+    case USER_FETCHING_CANCEL:
+    case USER_FETCHING_SUCCESS:
+      return false;
+    default:
+      return state;
+  }
+}
+
+function isAuthed(state = false, action) {
   switch (action.type) {
     case USER_AUTH:
-      return {
-        ...state,
-        isAuthed: true,
-        authedId: action.uid
-      };
+      return true;
     case USER_UNAUTH:
-      return {
-        ...state,
-        isAuthed: false,
-        authedId: ``
-      };
-    case USER_FETCHING:
-      return {
-        ...state,
-        isFetching: true,
-        error: ``
-      };
-    case USER_FETCHING_CANCEL:
-      return {
-        ...state,
-        isFetching: false
-      };
+      return false;
+    default:
+      return state;
+  }
+}
+
+function authedId(state = ``, action) {
+  switch (action.type) {
+    case USER_AUTH:
+      return action.uid;
+    case USER_UNAUTH:
+      return ``;
+    default:
+      return state;
+  }
+}
+
+function error(state = ``, action) {
+  switch (action.type) {
     case USER_FETCHING_ERROR:
-      return {
-        ...state,
-        isFetching: false,
-        error: action.error
-      };
+      return action.error;
+    case USER_FETCHING:
     case USER_FETCHING_DISMISS_ERROR:
-      return {
-        ...state,
-        error: ``
-      };
     case USER_FETCHING_SUCCESS:
-      return {
-        ...state,
-        isFetching: false,
-        error: ``,
-        byId: byId(state.byId, action),
-        allIds: allIds(state.allIds, action)
-      };
+      return ``;
     default:
       return state;
   }
 }
 
-function byId(state, action) {
-  switch (action.type) {
-    case USER_FETCHING_SUCCESS:
-      console.log(action);
-      return {
-        ...state,
-        ...action.payload.entities.users
-      };
-    default:
-      return state;
+function byId(state = {}, action) {
+  const newUsers = get(action, `payload.entities.users`);
+  if (newUsers) {
+    return {
+      ...state,
+      ...newUsers
+    };
   }
+
+  return state;
 }
 
-function allIds(state, action) {
-  switch (action.type) {
-    case USER_FETCHING_SUCCESS:
-      return uniq([...state, ...Object.keys(action.payload.entities.users)]);
-    default:
-      return state;
+function allIds(state = [], action) {
+  const newUsers = get(action, `payload.entities.users`);
+  if (newUsers) {
+    return uniq([...state, ...Object.keys(newUsers)]);
   }
+
+  return state;
 }
