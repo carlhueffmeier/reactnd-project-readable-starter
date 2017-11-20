@@ -1,0 +1,17 @@
+.vote {
+  flex: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 1rem;
+}
+
+.vote-btn {
+  border: none;
+  background: transparent;
+}
+
+.vote-score {
+  font-size: 1.4rem;
+  text-align: center;
+}

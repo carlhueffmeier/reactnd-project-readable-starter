@@ -1,10 +1,10 @@
 import SignInAndOutButton from 'components/SignInAndOutButton';
 import { connect } from 'react-redux';
 
-function mapStateToProps({ users }) {
+function mapStateToProps({ entities }) {
   return {
-    isAuthed: users.isAuthed,
-    isFetching: users.isFetching
+    isAuthed: entities.users.isAuthed,
+    isFetching: entities.users.isFetching
   };
 }
 

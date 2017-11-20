@@ -16,10 +16,9 @@ const modalStyles = {
 };
 
 SignInModal.propTypes = {
-  modalClose: PropTypes.func.isRequired,
-  userFetchingDismissError: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  buttonProps: PropTypes.object
+  modalClose: PropTypes.func.isRequired,
+  userFetchingDismissError: PropTypes.func.isRequired
 };
 
 export default function SignInModal(props) {

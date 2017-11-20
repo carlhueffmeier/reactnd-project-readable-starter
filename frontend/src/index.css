@@ -10,10 +10,14 @@ a {
   text-decoration: none;
 }
 
+h3 {
+  font-size: 1.6rem;
+}
+
 /* Buttons */
 .btn {
   text-transform: uppercase;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 500;
   height: 2.6rem;
   padding: 0 2rem;
@@ -51,4 +55,22 @@ a {
 .btn.btn-primary:active,
 .btn.btn-primary:focus {
   background: #39a1f4;
+}
+
+.btn.btn-link,
+.btn.btn-link:active,
+.btn.btn-link:focus {
+  padding: 0;
+  height: initial;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-transform: none;
+  color: inherit;
+}
+
+.btn.btn-link:active,
+.btn.btn-link:focus,
+.btn.btn-link:hover {
+  text-decoration: underline;
 }

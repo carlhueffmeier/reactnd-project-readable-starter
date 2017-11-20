@@ -1995,3 +1995,8 @@ SignOutButton.propTypes = {
 };
 
 export default connect(null, { logout })(SignOutButton);
+```
+
+### List all posts
+
+Our home route will display posts from all categories ordered by score or date. Let's buid that.

@@ -1,0 +1,42 @@
+.post-summary {
+  margin-bottom: 3rem;
+}
+
+.post-summary:last-child {
+  margin-bottom: 1rem;
+}
+
+.post-summary-title {
+  width: 100%;
+  text-align: left;
+  font-size: 18px;
+  margin: 0.5rem 0;
+  color: #000;
+}
+
+.post-summary-author {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.post-summary-body {
+  margin: 0;
+}
+
+.post-summary-footer {
+  color: #666;
+  font-size: 12px;
+  line-height: 24px;
+}
+
+@media (min-width: 768px) {
+  .post-summary {
+    margin-top: 2rem;
+  }
+
+  .post-summary-title {
+    font-size: 22px;
+  }
+}

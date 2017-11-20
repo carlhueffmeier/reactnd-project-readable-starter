@@ -1,0 +1,28 @@
+.post {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.post-content {
+  padding-top: 0.5rem;
+}
+
+.post-title {
+  margin: 0;
+}
+
+.post-title > a {
+  color: inherit;
+}
+
+.post-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.post-body {
+  margin: 1rem 0;
+  font-size: 1.2rem;
+}

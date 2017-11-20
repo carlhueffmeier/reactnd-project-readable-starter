@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import SignInAndOutButton from 'components/SignInAndOutButton';
 import { fetchCurrentUser } from 'redux/modules/users';
+import SignInAndOutButton from 'containers/SignInAndOutButton';
 
 class AuthenticationContainer extends Component {
   componentDidMount() {
