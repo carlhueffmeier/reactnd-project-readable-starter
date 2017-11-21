@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createAndSaveNewPost } from 'redux/modules/posts';
 import { getCurrentUser } from 'redux/modules/users';
-import AuthorizedOnly from 'containers/AuthorizedOnly';
+import AuthedOnly from 'containers/AuthedOnly';
 
 class PostNewContainer extends Component {
   static propTypes = {
@@ -20,9 +20,9 @@ class PostNewContainer extends Component {
 
   render() {
     return (
-      <AuthorizedOnly>
+      <AuthedOnly>
         <PostForm onSubmit={this.handleSubmit.bind(this)} />
-      </AuthorizedOnly>
+      </AuthedOnly>
     );
   }
 }
