@@ -1999,4 +1999,36 @@ export default connect(null, { logout })(SignOutButton);
 
 ### List all posts
 
-Our home route will display posts from all categories ordered by score or date. Let's buid that.
+Our home route will display posts from all categories ordered by score or date. Let's build that.
+
+These are the steps
+- First we fix up our backend to return the data populated with author.
+- We then implement data normalization using the `normalizr` library
+- We also need a `posts` module to handle data from the backend
+- To keep the code clean, we extract some utility functions for common use cases like "Send request and normalize response"
+- In order to create our post list we create the following containers: `AllPosts`, `PostActionBar`, `PostVoteScore`
+- And these components: `PostList`, `PostSummary`, `Post`, `VoteScore`, `ActionBar`
+
+### Create new posts
+
+- We will use redux-form
+- Need to add it to the reducer
+- Create new route
+- Add `PostNew` container holding a PostForm
+- We will split `PostForm` into container and component
+I tried being fuzzy about this in the beginning, but separating the business logic keeps everything a lot cleaner.
+- We also need a container `AuthorizedOnly` that checks whether the user is authenticated or not
+- Refactor a lot
+- Add some styles
+
+### Sorting
+
+- Create new module `ui` holding sort order for posts and the (soon to be implemented) comments
+- Add a `SortOrderControls` component and a container that binds the right functions for posts
+- Add the controls to `PostList`
+- We sort the posts in a container for `PostList`
+
+### Editing posts
+### Showing comments
+### Creating comments
+### Editing comments

@@ -14,6 +14,30 @@ h3 {
   font-size: 1.6rem;
 }
 
+/* App */
+
+.app {
+  overflow: auto;
+  height: 100%;
+}
+
+.content {
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.content > * {
+  width: 100%;
+  max-width: 900px;
+}
+
+@media (min-width: 768px) {
+  .content {
+    padding: 1.5rem;
+  }
+}
+
 /* Buttons */
 .btn {
   text-transform: uppercase;
@@ -26,6 +50,10 @@ h3 {
   background: rgba(158, 158, 158, 0.2);
   color: #000;
   cursor: pointer;
+}
+
+.btn svg {
+  vertical-align: text-top !important; /* Overwriting the default style of 'middle' in react-icons */
 }
 
 .btn:disabled {
@@ -73,4 +101,31 @@ h3 {
 .btn.btn-link:focus,
 .btn.btn-link:hover {
   text-decoration: underline;
+}
+
+/* Forms */
+label {
+  font-size: 1.2rem;
+}
+
+input,
+textarea {
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+.form-warning,
+.form-error {
+  position: absolute;
+  font-size: 1rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.form-warning {
+  color: #ff9800;
+}
+
+.form-error {
+  color: #ff7043;
 }

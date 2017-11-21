@@ -13,7 +13,6 @@ export default function ActionBar({ onEdit, onDelete }) {
       <button className="btn btn-link btn-sm" onClick={onEdit}>
         Edit
       </button>
-      {` `}
       <button className="btn btn-link btn-sm" onClick={onDelete}>
         Delete
       </button>

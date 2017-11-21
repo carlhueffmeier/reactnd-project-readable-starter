@@ -6,6 +6,13 @@ export function formatTimestamp(timestamp) {
   return moment(Number(timestamp)).fromNow();
 }
 
+export function sortBy(entities, order) {
+  if (order === `date`) {
+    return sortByDate(entities);
+  }
+  return sortByScore(entities);
+}
+
 export function sortByDate(entities) {
   return orderBy(entities, [`timestamp`, `voteScore`], [`desc`, `desc`]);
 }

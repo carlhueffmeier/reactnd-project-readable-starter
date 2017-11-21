@@ -21,9 +21,9 @@ export default function Post(props) {
       <div className="post-content">
         <h3 className="post-title">
           {props.withLink ? (
-            <Link to={`/posts/${id}`}>{title}</Link>
+            <Link to={`/${category}/${id}`}>{title}</Link>
           ) : (
-            { title }
+            title
           )}
         </h3>
         <span className="post-subtitle">

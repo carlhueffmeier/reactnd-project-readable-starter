@@ -1,0 +1,30 @@
+.sort-controls {
+  display: inline-block;
+}
+
+.sort-controls > input {
+  display: none;
+}
+
+.sort-controls > label {
+  cursor: pointer;
+  padding: 2px 10px;
+  border: 1px solid #777;
+  color: #333;
+  font-size: 1rem;
+}
+
+.sort-controls > label:first-of-type {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.sort-controls > label:last-of-type {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.sort-controls > input:checked + label {
+  background: #777;
+  color: #fff;
+}

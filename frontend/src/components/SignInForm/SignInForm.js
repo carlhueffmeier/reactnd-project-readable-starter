@@ -4,12 +4,12 @@ import Spinner from 'components/Spinner';
 import './styles.css';
 
 SignInForm.propTypes = {
-  onSuccess: PropTypes.func,
   isSubmitDisabled: PropTypes.bool.isRequired,
   isFetching: PropTypes.bool.isRequired,
   username: PropTypes.string.isRequired,
   password: PropTypes.string.isRequired,
   error: PropTypes.string.isRequired,
+  onSuccess: PropTypes.func, // optional function called after successful login
   modalUpdateUsername: PropTypes.func.isRequired,
   modalUpdatePassword: PropTypes.func.isRequired
 };

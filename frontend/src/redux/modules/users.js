@@ -188,3 +188,10 @@ function allIds(state = [], action) {
 
   return state;
 }
+
+// Selectors
+
+export function getCurrentUser({ entities }) {
+  const { byId, authedId } = entities.users;
+  return byId[authedId];
+}

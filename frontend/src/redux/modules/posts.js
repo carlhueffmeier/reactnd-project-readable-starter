@@ -154,7 +154,7 @@ export function deletePost(id) {
 // Reducer
 
 export default combineReducers({
-  isFetching: statusReducer(POST_FETCHING),
+  isFetching: statusReducer(POST_FETCHING, { initialState: true }),
   isAdding: statusReducer(POST_ADDING),
   isEditing: statusReducer(POST_EDITING),
   isDeleting: statusReducer(POST_DELETING),
@@ -163,8 +163,9 @@ export default combineReducers({
   allIds
 });
 
-function statusReducer(type) {
-  return (state = false, action) => {
+function statusReducer(type, options = {}) {
+  const { initialState = false } = options;
+  return (state = initialState, action) => {
     switch (action.type) {
       case type.START:
         return true;
@@ -214,11 +215,19 @@ function allIds(state = [], action) {
   switch (action.type) {
     case POST_FETCHING.SUCCESS:
     case POST_ADDING.SUCCESS:
-      return uniq([...state, ...action.payload.result]);
+      return uniq(addItemOrArray(state, action.payload.result));
     case POST_DELETING.SUCCESS:
       return without(state, action.payload.result);
     default:
       return state;
+  }
+}
+
+function addItemOrArray(originalArray, itemOrArray) {
+  if (Array.isArray(itemOrArray)) {
+    return [...originalArray, ...itemOrArray];
+  } else {
+    return [...originalArray, itemOrArray];
   }
 }
 

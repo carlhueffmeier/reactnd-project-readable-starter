@@ -1,0 +1,73 @@
+.post-form {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.post-form-outer {
+  list-style: none;
+  padding: 0;
+}
+
+.post-form-outer > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.post-form-outer > li:not(:last-child) {
+  margin-bottom: 1.6rem;
+}
+
+.post-form-label {
+  flex: 1 0 7rem;
+  max-width: 12rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.post-form-input-container {
+  flex: 1 0 10rem;
+  position: relative;
+  display: flex;
+}
+
+.post-form-input {
+  flex: 1;
+}
+
+.post-form-input-container > .form-warning,
+.post-form-input-container > .form-error {
+  left: 0;
+  top: -1rem;
+}
+
+.post-form-textarea-container {
+  flex: 1 0 100%;
+  position: relative;
+  display: flex;
+}
+
+.post-form-textarea {
+  flex: 1;
+  resize: none;
+}
+
+.post-form-textarea-container > .form-warning,
+.post-form-textarea-container > .form-error {
+  right: 0;
+  top: -1rem;
+}
+
+.post-form-button-row {
+  justify-content: center;
+}
+
+.post-form-button:not(:last-child) {
+  margin-right: 1rem;
+}
+
+@media (min-height: 786px) {
+  .post-form-textarea {
+    height: 30rem;
+  }
+}
