@@ -29,7 +29,6 @@ class PostNewContainer extends Component {
 
 function mapStateToProps(state) {
   return {
-    isAuthed: state.entities.users.isAuthed,
     currentUser: getCurrentUser(state)
   };
 }
