@@ -21,7 +21,7 @@ module.exports = app => {
   } else {
     app.get('/auth/google', (req, res) => {
       res.send(
-        "In order to use Google sign in, please add googleClientID and googleClientSecret exports to 'config/keys.js'."
+        "In order to use Google sign in, please add googleClientID and googleClientSecret exports to 'config/keys.private.js'."
       );
     });
   }
