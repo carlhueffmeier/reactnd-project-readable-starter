@@ -1,46 +1,52 @@
 const userData = {
-  mulder: {
-    uid: 'mulder',
-    displayName: 'Fox Mulder'
+  udacity: {
+    uid: 'udacity',
+    displayName: 'Udacity 🚀'
   },
-  '123': {
-    uid: '123',
-    displayName: 'thingtwo'
+  thingtwo: {
+    uid: 'thingtwo',
+    displayName: 'Thing II'
   },
-  '124': {
-    uid: '124',
-    displayName: 'thingone'
+  thingone: {
+    uid: 'thingone',
+    displayName: 'Thing I'
   }
 };
 
 const passwords = {
-  mulder: 'trustno1'
+  udacity: 'udacityrocks'
 };
 
-const getAll = () => new Promise(res => res(userData));
+function getAll() {
+  return new Promise(res => res(userData));
+}
 
-const get = uid => new Promise(res => res(userData[uid] || null));
+function get(uid) {
+  return new Promise(res => res(userData[uid] || null));
+}
 
-const add = user =>
-  new Promise(res => {
+function add(user) {
+  return new Promise(res => {
     userData[user.uid] = {
       uid: user.uid,
       displayName: user.displayName
     };
     res(userData[user.uid]);
   });
+}
 
-const populateAuthor = item => ({
-  ...item,
-  author: userData[item.author] || null
-});
+function getAuthor(uid) {
+  return userData[uid] || null;
+}
 
-const verifyPassword = (user, password) => passwords[user.uid] === password;
+function verifyPassword(user, password) {
+  return passwords[user.uid] === password;
+}
 
 module.exports = {
   getAll,
   get,
   add,
-  populateAuthor,
+  getAuthor,
   verifyPassword
 };

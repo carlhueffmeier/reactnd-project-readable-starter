@@ -38,7 +38,7 @@
 .post-form-input-container > .form-warning,
 .post-form-input-container > .form-error {
   left: 0;
-  top: -1rem;
+  top: -1.2rem;
 }
 
 .post-form-textarea-container {
@@ -55,7 +55,7 @@
 .post-form-textarea-container > .form-warning,
 .post-form-textarea-container > .form-error {
   right: 0;
-  top: -1rem;
+  top: -1.2rem;
 }
 
 .post-form-button-row {

@@ -1,0 +1,14 @@
+.comment-wrapper {
+  display: flex;
+  align-items: flex-start;
+}
+
+.comment {
+  padding-top: 0.5rem;
+  width: 100%;
+}
+
+.comment-header {
+  color: #666;
+  margin: 0;
+}

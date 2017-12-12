@@ -1,8 +1,8 @@
+// Spinner from SpinKit by Tobias Ahlin (slightly modified)
+// https://github.com/tobiasahlin/SpinKit/blob/master/css/spinners/8-circle.css
+
 import React from 'react';
 import './styles.css';
-
-// Spinner from SpinKit by Tobias Ahlin
-// https://github.com/tobiasahlin/SpinKit/blob/master/css/spinners/8-circle.css
 
 export default function Spinner({ size = 40, color = `#333` }) {
   const styles = {

@@ -1,3 +1,5 @@
+// Fetches post and displays loading state
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PostType } from 'types';
@@ -10,6 +12,8 @@ import { Redirect } from 'react-router-dom';
 class PostDetailsContainer extends Component {
   static propTypes = {
     post: PostType,
+    isFetching: PropTypes.bool.isRequired,
+    error: PropTypes.string.isRequired,
     fetchPostById: PropTypes.func.isRequired
   };
 

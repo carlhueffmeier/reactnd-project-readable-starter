@@ -1,3 +1,5 @@
+// Displays a shortened post with a link to its details page
+
 import React from 'react';
 import Post from 'components/Post';
 import { PostType } from 'types';

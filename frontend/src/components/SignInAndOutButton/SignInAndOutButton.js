@@ -1,3 +1,5 @@
+// A universal authentication button for sign in / out
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import SignInButton from 'containers/SignInButton';

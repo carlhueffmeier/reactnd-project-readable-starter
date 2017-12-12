@@ -4,14 +4,33 @@
   flex-direction: column;
   justify-content: center;
   margin-right: 1rem;
+  font-size: 1.414rem;
 }
 
 .vote-btn {
   border: none;
   background: transparent;
+  cursor: pointer;
+  opacity: 0.3;
+}
+
+.vote-btn:focus {
+  outline: none;
 }
 
 .vote-score {
-  font-size: 1.4rem;
   text-align: center;
+  opacity: 0.3;
+}
+
+.vote.upVote > .vote-btn-up,
+.vote.upVote > .vote-score {
+  opacity: 1;
+  color: green;
+}
+
+.vote.downVote > .vote-btn-down,
+.vote.downVote > .vote-score {
+  opacity: 1;
+  color: rgb(105, 62, 161);
 }

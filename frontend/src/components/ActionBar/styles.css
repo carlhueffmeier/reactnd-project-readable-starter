@@ -1,3 +1,3 @@
-.action-bar > .btn.btn-sm:not(:last-child) {
+.action-bar > .action-bar-button:not(:last-child) {
   margin-right: 0.5rem;
 }

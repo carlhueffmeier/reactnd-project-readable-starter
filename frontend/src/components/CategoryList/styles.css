@@ -1,0 +1,9 @@
+.category-list {
+  max-width: 320px;
+  padding: 0;
+  margin: 2rem auto 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+}

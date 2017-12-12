@@ -30,8 +30,8 @@ export function modalUpdatePassword(password) {
 }
 
 const initialState = {
-  username: '',
-  password: '',
+  username: ``,
+  password: ``,
   isOpen: false
 };
 
@@ -44,8 +44,8 @@ export default function modal(state = initialState, action) {
       };
     case MODAL_CLOSE:
       return {
-        username: '',
-        password: '',
+        username: ``,
+        password: ``,
         isOpen: false
       };
     case MODAL_UPDATE_USERNAME:

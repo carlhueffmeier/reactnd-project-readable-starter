@@ -1,3 +1,5 @@
+// Click on the button opens the "sign in" modal
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import SignInModal from 'containers/SignInModal';

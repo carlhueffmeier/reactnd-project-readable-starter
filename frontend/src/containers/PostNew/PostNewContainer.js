@@ -1,10 +1,15 @@
-import PostForm from 'containers/PostForm';
+// Post creation page.
+// It renders the form when the user is logged in.
+// I am being lazy and ignore the fetching state for now.
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createAndSaveNewPost } from 'redux/modules/posts';
-import { getCurrentUser } from 'redux/modules/users';
-import AuthedOnly from 'containers/AuthedOnly';
+import PleaseSignIn from 'containers/PleaseSignIn';
+import PostForm from 'containers/PostForm';
+import CheckAuthed from 'containers/CheckAuthed';
+import Spinner from 'components/Spinner';
 
 class PostNewContainer extends Component {
   static propTypes = {
@@ -13,23 +18,32 @@ class PostNewContainer extends Component {
   };
 
   handleSubmit(formData) {
-    const props = { ...formData, author: this.props.currentUser.uid };
-    this.props.createAndSaveNewPost(props);
+    this.props.createAndSaveNewPost(formData);
     this.props.history.push(`/`);
   }
 
   render() {
+    if (this.props.isFetching) {
+      return <Spinner />;
+    }
+
     return (
-      <AuthedOnly>
-        <PostForm onSubmit={this.handleSubmit.bind(this)} />
-      </AuthedOnly>
+      <CheckAuthed>
+        {isAuthed =>
+          isAuthed ? (
+            <PostForm onSubmit={this.handleSubmit.bind(this)} />
+          ) : (
+            <PleaseSignIn />
+          )
+        }
+      </CheckAuthed>
     );
   }
 }
 
 function mapStateToProps(state) {
   return {
-    currentUser: getCurrentUser(state)
+    isFetching: state.entities.users.isFetching
   };
 }
 

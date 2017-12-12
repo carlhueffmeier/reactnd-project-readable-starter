@@ -14,3 +14,17 @@ export const PostType = PropTypes.shape({
   voteScore: PropTypes.number.isRequired,
   commentCount: PropTypes.number.isRequired
 });
+
+export const CommentType = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  timestamp: PropTypes.number.isRequired,
+  body: PropTypes.string.isRequired,
+  author: UserType.isRequired,
+  voteScore: PropTypes.number.isRequired,
+  parentId: PropTypes.string.isRequired
+});
+
+export const CategoryType = PropTypes.shape({
+  path: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired
+});

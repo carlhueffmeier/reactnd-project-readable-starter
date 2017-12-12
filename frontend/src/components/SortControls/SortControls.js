@@ -1,3 +1,6 @@
+// A simple select toggle button changing between different sort orders.
+// Can be used for comments and posts alike.
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import './styles.css';

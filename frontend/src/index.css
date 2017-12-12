@@ -6,12 +6,37 @@ body {
   font-size: 14px;
 }
 
+@media (min-width: 350px) {
+  html,
+  body {
+    font-size: 16px;
+  }
+}
+
 a {
   text-decoration: none;
 }
 
+h1,
+h2,
 h3 {
-  font-size: 1.6rem;
+  font-weight: 300;
+}
+
+h1 {
+  font-size: 2.827rem;
+}
+
+h2 {
+  font-size: 1.999rem;
+}
+
+h3 {
+  font-size: 1.414rem;
+}
+
+p {
+  font-size: 1rem;
 }
 
 /* App */
@@ -30,6 +55,7 @@ h3 {
 .content > * {
   width: 100%;
   max-width: 900px;
+  padding: 1.5rem 0;
 }
 
 @media (min-width: 768px) {
@@ -41,9 +67,9 @@ h3 {
 /* Buttons */
 .btn {
   text-transform: uppercase;
-  font-size: 1.2rem;
+  font-size: 1.414rem;
   font-weight: 500;
-  height: 2.6rem;
+  height: 4rem;
   padding: 0 2rem;
   border: 0;
   border-radius: 2px;
@@ -52,8 +78,9 @@ h3 {
   cursor: pointer;
 }
 
-.btn svg {
-  vertical-align: text-top !important; /* Overwriting the default style of 'middle' in react-icons */
+.btn svg,
+.btn span {
+  vertical-align: baseline !important; /* Overwriting the default style of 'middle' in react-icons */
 }
 
 .btn:disabled {
@@ -70,8 +97,15 @@ h3 {
 }
 
 .btn.btn-sm {
-  padding: 0 1rem;
   font-size: 1rem;
+  padding: 0 1rem;
+  height: 2rem;
+}
+
+.btn.btn-xs {
+  font-size: 0.707rem;
+  padding: 0 0.707rem;
+  height: 1.414rem;
 }
 
 .btn.btn-primary {
@@ -94,7 +128,8 @@ h3 {
   border: none;
   box-shadow: none;
   text-transform: none;
-  color: inherit;
+  color: #39a1f4;
+  font-size: inherit;
 }
 
 .btn.btn-link:active,
@@ -104,14 +139,38 @@ h3 {
 }
 
 /* Forms */
+
 label {
-  font-size: 1.2rem;
+  font-size: 1.414rem;
+}
+
+/* Make select elements more consistent
+ * See: https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Advanced_styling_for_HTML_forms#Dealing_with_the_select_nightmare */
+select,
+option {
+  -webkit-appearance: none; /* To gain control over the appearance on WebKit/Chromium */
+  -moz-appearance: none; /* To gain control over the appearance on Gecko */
+
+  /* To gain control over the appearance on and Trident (IE)
+     Note that it also works on Gecko and has partial effects on WebKit */
+  background: none;
+}
+
+select {
+  border-radius: 0;
 }
 
 input,
-textarea {
+textarea,
+select {
   padding: 1rem;
   font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid #aaa;
+}
+
+option {
+  font-size: inherit;
 }
 
 .form-warning,

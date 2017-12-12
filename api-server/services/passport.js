@@ -3,14 +3,13 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 const keys = require('../config/keys');
 const users = require('./users');
+const { isGoogleAuthenticationPossible } = require('../helpers/utils');
 
 passport.serializeUser((user, done) => {
-  console.log('serialize ', user);
   done(null, user.uid);
 });
 
 passport.deserializeUser(async (uid, done) => {
-  console.log('deserialize ', uid);
   const user = await users.get(uid);
   done(null, user);
 });
@@ -20,27 +19,33 @@ const getPrimaryEmail = profile => {
   return primary ? primary.value : null;
 };
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientSecret: keys.googleClientSecret,
-      clientID: keys.googleClientID,
-      callbackURL: '/auth/google/callback'
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      const existingUser = await users.get(profile.id);
-      if (existingUser) {
-        done(null, existingUser);
-      } else {
-        const newUser = await users.add({
-          uid: profile.id,
-          displayName: profile.displayName
-        });
-        done(null, newUser);
+if (isGoogleAuthenticationPossible()) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientSecret: keys.googleClientSecret,
+        clientID: keys.googleClientID,
+        callbackURL: '/auth/google/callback'
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        const existingUser = await users.get(profile.id);
+        if (existingUser) {
+          done(null, existingUser);
+        } else {
+          const newUser = await users.add({
+            uid: profile.id,
+            displayName: profile.displayName
+          });
+          done(null, newUser);
+        }
       }
-    }
-  )
-);
+    )
+  );
+} else {
+  console.log(
+    'In order to use Google sign in, export googleClientID and googleClientSecret from config/keys.js '
+  );
+}
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {

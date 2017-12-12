@@ -1,5 +1,6 @@
 const clone = require('clone');
-const { populateAuthor: populate } = require('./users');
+const { getAuthor } = require('./users');
+const { getVote } = require('./votes');
 
 let db = {};
 
@@ -9,7 +10,7 @@ const defaultData = {
     timestamp: 1467166872634,
     title: 'Udacity is the best place to learn React',
     body: 'Everyone says so after all.',
-    author: '123',
+    author: 'thingtwo',
     category: 'react',
     voteScore: 6,
     deleted: false,
@@ -20,7 +21,7 @@ const defaultData = {
     timestamp: 1468479767190,
     title: 'Learn Redux in 10 minutes!',
     body: 'Just kidding. It takes more than 10 minutes to learn technology.',
-    author: '124',
+    author: 'thingone',
     category: 'redux',
     voteScore: -5,
     deleted: false,
@@ -36,36 +37,50 @@ function getData(token) {
   return data;
 }
 
-function getByCategory(token, category) {
+function populate({ token, uid }, post) {
+  let populatedPost = { ...post };
+  if (uid) {
+    populatedPost.userVote = getVote({
+      type: 'post',
+      token,
+      uid,
+      id: post.id
+    });
+  }
+  populatedPost.author = getAuthor(post.author);
+  return populatedPost;
+}
+
+function getByCategory(header, category) {
   return new Promise(res => {
-    let posts = getData(token);
+    let posts = getData(header.token);
     let keys = Object.keys(posts);
     let filtered_keys = keys.filter(
       key => posts[key].category === category && !posts[key].deleted
     );
-    res(filtered_keys.map(key => populate(posts[key])));
+    res(filtered_keys.map(key => populate(header, posts[key])));
   });
 }
 
-function get(token, id) {
+function get(header, id) {
   return new Promise(res => {
-    const posts = getData(token);
-    res(posts[id].deleted ? {} : populate(posts[id]));
+    const posts = getData(header.token);
+    res(posts[id].deleted ? {} : populate(header, posts[id]));
   });
 }
 
-function getAll(token) {
+function getAll(header) {
   return new Promise(res => {
-    const posts = getData(token);
+    const posts = getData(header.token);
     let keys = Object.keys(posts);
     let filtered_keys = keys.filter(key => !posts[key].deleted);
-    res(filtered_keys.map(key => populate(posts[key])));
+    res(filtered_keys.map(key => populate(header, posts[key])));
   });
 }
 
-function add(token, post) {
+function add(header, post) {
   return new Promise(res => {
-    let posts = getData(token);
+    let posts = getData(header.token);
 
     posts[post.id] = {
       id: post.id,
@@ -74,53 +89,44 @@ function add(token, post) {
       body: post.body,
       author: post.author,
       category: post.category,
-      voteScore: 1,
+      voteScore: 0,
       deleted: false,
       commentCount: 0
     };
 
-    res(populate(posts[post.id]));
+    res(populate(header, posts[post.id]));
   });
 }
 
-function vote(token, id, option) {
+function changeVoteScore(header, id, difference) {
   return new Promise(res => {
-    let posts = getData(token);
+    let posts = getData(header.token);
     post = posts[id];
-    switch (option) {
-      case 'upVote':
-        post.voteScore = post.voteScore + 1;
-        break;
-      case 'downVote':
-        post.voteScore = post.voteScore - 1;
-        break;
-      default:
-        console.log(`posts.vote received incorrect parameter: ${option}`);
-    }
-    res(populate(post));
+    post.voteScore = post.voteScore + difference;
+    res(populate(header, post));
   });
 }
 
-function disable(token, id) {
+function disable(header, id) {
   return new Promise(res => {
-    let posts = getData(token);
+    let posts = getData(header.token);
     posts[id].deleted = true;
-    res(populate(posts[id]));
+    res(populate(header, posts[id]));
   });
 }
 
-function edit(token, id, post) {
+function edit(header, id, post) {
   return new Promise(res => {
-    let posts = getData(token);
+    let posts = getData(header.token);
     for (prop in post) {
       posts[id][prop] = post[prop];
     }
-    res(populate(posts[id]));
+    res(populate(header, posts[id]));
   });
 }
 
-function incrementCommentCounter(token, id, count) {
-  const data = getData(token);
+function incrementCommentCounter(header, id, count) {
+  const data = getData(header.token);
   if (data[id]) {
     data[id].commentCount += count;
   }
@@ -131,9 +137,10 @@ module.exports = {
   getAll,
   getByCategory,
   add,
-  vote,
+  changeVoteScore,
   disable,
   edit,
   getAll,
-  incrementCommentCounter
+  incrementCommentCounter,
+  populate
 };

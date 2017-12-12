@@ -1,0 +1,12 @@
+.comment-new {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+.comment-new-textarea {
+  align-self: stretch;
+  resize: none;
+  margin-bottom: 0.3rem;
+}

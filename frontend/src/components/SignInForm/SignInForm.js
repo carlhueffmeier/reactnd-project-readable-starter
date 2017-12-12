@@ -1,3 +1,7 @@
+// Sign in form inside the sign in modal.
+// Displays username + password for local authentication
+// plus a link to the Google sign-in page.
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import Spinner from 'components/Spinner';
@@ -54,7 +58,7 @@ export default function SignInForm(props) {
         {props.isFetching ? <Spinner size={30} color="white" /> : `Sign in`}
       </button>
       <a href="/auth/google">
-        <div className="btn login-modal-login-with-google-btn">
+        <div className="btn btn-sm login-modal-login-with-google-btn">
           <span>Sign in with Google</span>
         </div>
       </a>

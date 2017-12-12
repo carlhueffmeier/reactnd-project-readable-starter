@@ -1,0 +1,16 @@
+.comment-edit {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.comment-edit-textarea {
+  align-self: stretch;
+  resize: none;
+  margin-bottom: 0.3rem;
+}
+
+.comment-edit-btn-row > button:not(:last-child) {
+  margin-right: 0.5rem;
+}

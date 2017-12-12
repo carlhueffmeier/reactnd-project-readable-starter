@@ -1,21 +1,29 @@
 import VoteScore from 'components/VoteScore';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import { getPostById, votePostUp, votePostDown } from 'redux/modules/posts';
+import { getPostById } from 'redux/modules/posts';
+import { modalOpen } from 'redux/modules/modal';
+import {
+  getUserVoteForPost,
+  votePostUp,
+  votePostDown,
+  votePostReset
+} from 'redux/modules/userVotes';
 
 function mapStateToProps(state, { postId }) {
   return {
-    score: getPostById(state, postId).voteScore
+    score: getPostById(state, postId).voteScore,
+    userVote: getUserVoteForPost(state, postId),
+    isAuthed: state.entities.users.isAuthed
   };
 }
 
 function mapDispatchToProps(dispatch, { postId }) {
   return {
+    signIn: () => dispatch(modalOpen()),
     onUpVote: () => dispatch(votePostUp(postId)),
-    onDownVote: () => dispatch(votePostDown(postId))
+    onDownVote: () => dispatch(votePostDown(postId)),
+    onRemoveVote: () => dispatch(votePostReset(postId))
   };
 }
 
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(VoteScore)
-);
+export default connect(mapStateToProps, mapDispatchToProps)(VoteScore);

@@ -12,21 +12,21 @@
   align-items: center;
   padding: 10px 20px;
   list-style: none;
-  font-size: 1rem;
 }
 
 .brand {
   color: #333;
-  font-size: 1.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.1rem;
+  letter-spacing: 0.4rem;
+  margin: 0;
+  font-weight: 300;
 }
 
 .nav-bar > .nav-brand {
   display: none;
 }
 
-@media (min-width: 400px) {
+@media (min-width: 768px) {
   .nav-bar > .nav-brand {
     display: block;
     margin-right: auto;
@@ -40,6 +40,7 @@
 .nav-item {
   text-transform: uppercase;
   display: block;
+  text-align: center;
   padding: 5px 10px;
 }
 

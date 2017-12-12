@@ -1,3 +1,5 @@
+// The modal renders the login form and a "close" button
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactModal from 'react-modal';
@@ -7,8 +9,11 @@ import './styles.css';
 const modalStyles = {
   content: {
     width: 350,
+    maxWidth: `calc(100% - 20px)`,
+    left: 10,
+    right: 10,
     margin: '0px auto',
-    height: 300,
+    bottom: `initial`,
     borderRadius: 5,
     background: '#EBEBEB',
     padding: 0

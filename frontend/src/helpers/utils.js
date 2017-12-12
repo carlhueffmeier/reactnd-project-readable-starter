@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { orderBy } from 'lodash';
+import { orderBy, forEach } from 'lodash';
 
 export function formatTimestamp(timestamp) {
   return moment(Number(timestamp)).fromNow();
@@ -28,4 +28,15 @@ export function renderNewlines(text) {
       <br />
     </span>
   ));
+}
+
+// Receives the entities in the redux store and returns
+// only the hashes.
+// Just as it is expected by denormalize.
+export function stripMetainfo(entities) {
+  const entitiesWithoutMetainfo = {};
+  forEach(entities, (value, key) => {
+    entitiesWithoutMetainfo[key] = value.byId;
+  });
+  return entitiesWithoutMetainfo;
 }

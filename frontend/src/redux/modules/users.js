@@ -2,10 +2,14 @@ import { combineReducers } from 'redux';
 import { uniq, get } from 'lodash';
 import { normalize } from 'normalizr';
 import { userSchema } from 'schema';
+import { getPostById } from 'redux/modules/posts';
+import { getCommentById } from 'redux/modules/comments';
+import { fetchAllVotes } from 'redux/modules/userVotes';
 import axios from 'axios';
 
 const USER_AUTH = `USER_AUTH`;
-const USER_UNAUTH = `USER_UNAUTH`;
+// Exporting to allow data flushing on sign out
+export const USER_UNAUTH = `USER_UNAUTH`;
 const USER_FETCHING = `USER_FETCHING`;
 const USER_FETCHING_ERROR = `USER_FETCHING_ERROR`;
 const USER_FETCHING_SUCCESS = `USER_FETCHING_SUCCESS`;
@@ -61,6 +65,7 @@ function addAndAuthenticateUser(user, dispatch) {
   const normalizedData = normalize(user, userSchema);
   dispatch(userFetchingSuccess(normalizedData));
   dispatch(userAuth(user.uid));
+  dispatch(fetchAllVotes());
 }
 
 export function localLogin(username, password) {
@@ -192,6 +197,21 @@ function allIds(state = [], action) {
 // Selectors
 
 export function getCurrentUser({ entities }) {
-  const { byId, authedId } = entities.users;
-  return byId[authedId];
+  const { isAuthed, byId, authedId } = entities.users;
+  return isAuthed ? byId[authedId] : null;
+}
+
+export function isUserAllowedToModifyPost(state, postId) {
+  const post = getPostById(state, postId);
+  return matchesCurrentUserId(state, post.author.uid);
+}
+
+export function isUserAllowedToModifyComment(state, commentId) {
+  const comment = getCommentById(state, commentId);
+  return matchesCurrentUserId(state, comment.author.uid);
+}
+
+function matchesCurrentUserId(state, uid) {
+  const user = getCurrentUser(state);
+  return Boolean(user && uid === user.uid);
 }

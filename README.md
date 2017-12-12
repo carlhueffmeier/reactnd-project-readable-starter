@@ -1,66 +1,98 @@
 # ReactND: Readable
 
-The second project of the [Udacity React Nanodegree](
-https://www.udacity.com/course/react-nanodegree--nd019).
+The second project of the
+[Udacity React Nanodegree](https://www.udacity.com/course/react-nanodegree--nd019).
 
-The goal is to create a content website similar to Reddit. Users can post content to predefined categories, comment on their posts and other users' posts, and vote on posts and comments. Users can also edit and delete posts and comments.
+The goal is to create a content website similar to Reddit. Users can post
+content to predefined categories, comment on their posts and other users' posts,
+and vote on posts and comments. Users can also edit and delete posts and
+comments.
 
 ## Getting Started
+
 1. Install [npm](https://www.npmjs.com/get-npm)
 2. Install [Git](https://git-scm.com/downloads)
-3. Open a terminal and change to the location you want to save the application folder to
-4. Enter `git clone https://github.com/carlhueffmeier/reactnd-readable.git` to download the project directory
+3. Open a terminal and change to the location you want to save the application
+   folder to
+4. Enter `git clone https://github.com/carlhueffmeier/reactnd-readable.git` to
+   download the project directory
 5. Enter `cd reactnd-readable` to open the project directory
 6. Enter `npm install` to install all requirements
-7. You need to repeat this step for the API server
+7. You need to repeat this step for the API server and the frontend
 8. Enter `cd api-server` to open the server directory
 9. Enter `npm install` to install all server requirements
-11. Enter `cd ..` to return to the project's root directory
-12. Enter `npm start` to launch the server
-13. If it doesn't open automatically, browse to `localhost:3000` in your web browser
-14. Enjoy
+10. Enter `cd ../frontend` to change to the frontend directory
+11. Enter `npm install` to install all frontend requirements
+12. Enter `cd ..` to return to the project's root directory
+13. Enter `npm start` to launch the server
+14. If it doesn't open automatically, browse to `localhost:3000` in your web
+    browser
+15. Enjoy
 
 ## API Server
 
-Information about the API server and how to use it can be found in its [README file](api-server/README.md).
+Information about the API server and how to use it can be found in its
+[README file](api-server/README.md).
+
+### Google Sign In
+
+To make use of Google sign in, copy `backend/config/keys.example.js` to
+`backend/config/keys.js` and enter valid keys.
 
 ## Requirements
 
 The App should have at least 4 views:
 
 **Post List View**
-- should list all available categories, which should link to a category view for that category
-- should list all of the posts ordered by voteScore (highest score first)
-- should have a control for changing the sort method for the list, including at minimum, order by voteScore and order by timestamp
-- should have a control for adding a new post
+
+* should list all available categories, which should link to a category view for
+  that category
+* should list all of the posts ordered by voteScore (highest score first)
+* should have a control for changing the sort method for the list, including at
+  minimum, order by voteScore and order by timestamp
+* should have a control for adding a new post
 
 **Category View**
-- identical to the default view, but filtered to only include posts with the selected category
+
+* identical to the default view, but filtered to only include posts with the
+  selected category
 
 **Post Detail View**
-- should show the details of a post, including: Title, Body, Author, timestamp (in user readable format), and vote score
-- should list all of the comments for that post, ordered by voteScore (highest first)
-- should have a control for reordering comments by score or timestamp
-- should have controls to edit or delete the post
-- should have a control to add a new comment.
-- implement comment form however you want (inline, modal, etc.)
-- comments should also have controls for editing or deleting
+
+* should show the details of a post, including: Title, Body, Author, timestamp
+  (in user readable format), and vote score
+* should list all of the comments for that post, ordered by voteScore (highest
+  first)
+* should have a control for reordering comments by score or timestamp
+* should have controls to edit or delete the post
+* should have a control to add a new comment.
+* implement comment form however you want (inline, modal, etc.)
+* comments should also have controls for editing or deleting
 
 **Create/Edit View**
-- should have a form to create new post or edit existing posts
-- when editing, existing data should be populated in the form
 
-See the [project rubric](https://review.udacity.com/#!/rubrics/1017/view) for detailed project requirements.
+* should have a form to create new post or edit existing posts
+* when editing, existing data should be populated in the form
+
+See the [project rubric](https://review.udacity.com/#!/rubrics/1017/view) for
+detailed project requirements.
 
 ## Development Log
 
-### Run-scripts
-After downloading the starter code, the first step is to add the frontend.
-- `create-react-app frontend`
+This text explains my first few steps in the project. Feel free to read it, but
+it's only meant for personal reference.
 
-Running the server and the frontend in multiple terminal windows seemed cumbersome, so let's set up npm scripts in the root directory.
+### Run-scripts
+
+After downloading the starter code, the first step is to add the frontend.
+
+* `create-react-app frontend`
+
+Running the server and the frontend in multiple terminal windows seemed
+cumbersome, so let's set up npm scripts in the root directory.
 
 First we initialize the `package.json`.
+
 ```
 npm init -y
 ```
@@ -68,6 +100,7 @@ npm init -y
 The `-y` or `--yes` flag initializes the `package.json` using default values.
 
 Next we add the scripts to run our server and frontend.
+
 ```
 [package.json]
 
@@ -76,11 +109,17 @@ Next we add the scripts to run our server and frontend.
   "client": "cd frontend && npm start",
 },
 ```
-Ok, now we can start our server and client from the project's root directory, but we still need two commands to execute our scripts. We can do better. The package `concurrently` can help us with that.
+
+Ok, now we can start our server and client from the project's root directory,
+but we still need two commands to execute our scripts. We can do better. The
+package `concurrently` can help us with that.
+
 ```
 npm i -D concurrently
 ```
+
 We add an additional npm script to our project root
+
 ```
 [package.json]
 
@@ -89,16 +128,24 @@ We add an additional npm script to our project root
   "start": "concurrent \"npm run server\" \"npm run client\""
 },
 ```
-Our `start` script executes both of our scripts at the same time, so we can start developing just by calling `npm start`.
 
-Our frontend runs with the `webpack-dev-server` and any changes will be reflected instantly. Our backend on the other hand runs as a normal node instance and we would have to stop and restart our script every single time to test changes to our server code.
+Our `start` script executes both of our scripts at the same time, so we can
+start developing just by calling `npm start`.
+
+Our frontend runs with the `webpack-dev-server` and any changes will be
+reflected instantly. Our backend on the other hand runs as a normal node
+instance and we would have to stop and restart our script every single time to
+test changes to our server code.
 
 There is a package called `nodemon` to help us with that.
+
 ```
 cd api-server
 npm i -D nodemon
 ```
+
 To the `package.json` of our api-server, we add the following scripts:
+
 ```
 [api-server/package.json]
 
@@ -107,9 +154,11 @@ To the `package.json` of our api-server, we add the following scripts:
   "dev": "nodemon server.js"
 },
 ```
+
 Now, running `npm run dev` will start our development server.
 
 Let's update our project's npm script accordingly.
+
 ```
 [package.json]
 "scripts": {
@@ -119,9 +168,13 @@ Let's update our project's npm script accordingly.
 ```
 
 ### Redux Schema
-Before we go ahead and set up our reducers and redux store, let's pause for a second and figure out what information we want to keep in redux.
 
-In our application we have Posts, Users, Categories and Comments. Every Post is associated with a single User and a single Category. A Post can have multiple Comments associated with it.
+Before we go ahead and set up our reducers and redux store, let's pause for a
+second and figure out what information we want to keep in redux.
+
+In our application we have Posts, Users, Categories and Comments. Every Post is
+associated with a single User and a single Category. A Post can have multiple
+Comments associated with it.
 
 What we get, is a general schema like this:
 
@@ -153,14 +206,19 @@ What we get, is a general schema like this:
 - voteScore: integer
 ```
 
-Let's get a little bit more concrete and start designing our redux store. In addition to the data we get from our api-server, we will also need to store some status information:
-- Is the user authorized?
-- Are the comments currently fetching?
-- ...
+Let's get a little bit more concrete and start designing our redux store. In
+addition to the data we get from our api-server, we will also need to store some
+status information:
 
-Our frontend needs to know about those things in order to display everything correctly.
+* Is the user authorized?
+* Are the comments currently fetching?
+* ...
 
-Taking that into consideration, we need at least the following information in our store.
+Our frontend needs to know about those things in order to display everything
+correctly.
+
+Taking that into consideration, we need at least the following information in
+our store.
 
 ```
 posts: {
@@ -223,20 +281,23 @@ comments: {
 While we're at it, let's also think about our actions.
 
 In a general sense, this is what our application can do:
-- Log in
-- Log out
-- Add a Post with category and author
-- Up- / Downvote a Post
-- Edit a Post
-- Delete a Post
-- Add a Comment to a Post
-- Up- / Downvote a Comment
-- Edit a Comment
-- Delete a Comment
-- Sort posts by date / score
-- Sort comments by date / score
 
-Let's try to figure out our preliminary redux actions from our schema and the list above. There are still many things left to consider, but it doesn't hurt to plan too early.
+* Log in
+* Log out
+* Add a Post with category and author
+* Up- / Downvote a Post
+* Edit a Post
+* Delete a Post
+* Add a Comment to a Post
+* Up- / Downvote a Comment
+* Edit a Comment
+* Delete a Comment
+* Sort posts by date / score
+* Sort comments by date / score
+
+Let's try to figure out our preliminary redux actions from our schema and the
+list above. There are still many things left to consider, but it doesn't hurt to
+plan too early.
 
 ```
 // Users
@@ -389,14 +450,15 @@ Let's try to figure out our preliminary redux actions from our schema and the li
 {
   type: EDIT_COMMENT_END,
 }
-
-
 ```
 
-There are many design decisions to think about here, but it will all make more sense when we build out our application.
+There are many design decisions to think about here, but it will all make more
+sense when we build out our application.
 
 ### Install redux and router
-Now we set up our react frontend for greatness. First, we need some additional packages.
+
+Now we set up our react frontend for greatness. First, we need some additional
+packages.
 
 ```
 cd frontend
@@ -409,7 +471,9 @@ Next let's create our directory structure.
 mkdir -p src/{redux/modules,store,containers,components}
 ```
 
-There are just a few changes I want to make before we get down to our actions and reducers. To facilitate the import of modules let's add the `src` directory to our `NODE_PATH`. That allows us to use absolute paths for our imports.
+There are just a few changes I want to make before we get down to our actions
+and reducers. To facilitate the import of modules let's add the `src` directory
+to our `NODE_PATH`. That allows us to use absolute paths for our imports.
 
 ```
 [frontend/.env]
@@ -538,7 +602,10 @@ function allIds(state, action) {
 }
 ```
 
-All the actions and reducers are going to exist together in the `modules` folder. To create our store however, we need a single root reducer. I want to construct our root reducer within the `modules` folder and we can do so conveniently by creating an `index.js` file.
+All the actions and reducers are going to exist together in the `modules`
+folder. To create our store however, we need a single root reducer. I want to
+construct our root reducer within the `modules` folder and we can do so
+conveniently by creating an `index.js` file.
 
 ```
 [frontend/src/redux/modules/index.js]
@@ -555,8 +622,8 @@ export default rootReducer;
 
 We just have to make sure we update this file every time we add a new reducer.
 
-
-Now that we have a basic reducer up and going, we can create our store. To keep everything neet and organized, let's do it in a separate file.
+Now that we have a basic reducer up and going, we can create our store. To keep
+everything neet and organized, let's do it in a separate file.
 
 ```
 [frontend/store/createStore.js]
@@ -602,7 +669,8 @@ render(
 );
 ```
 
-We pass the newly create store to our `Root` component, and wrap it in a `Router`.
+We pass the newly create store to our `Root` component, and wrap it in a
+`Router`.
 
 We will create a new folder for our `Root` container.
 
@@ -628,7 +696,9 @@ RootContainer.propTypes = {
 export default RootContainer;
 ```
 
-Creating a new folder for all components seems unnecessary at the moment, but it starts to make sense once we add CSS to some of them. To keep the import path simple, let's use our `index.js` trick again.
+Creating a new folder for all components seems unnecessary at the moment, but it
+starts to make sense once we add CSS to some of them. To keep the import path
+simple, let's use our `index.js` trick again.
 
 ```
 [frontend/src/containers/Root/index.js]
@@ -639,14 +709,29 @@ export { default } from './RootContainer';
 Et voila, we have our first output.
 
 ### Authentication Part 1: Fake Authentication
-Alright, with redux and router set up, let's start with the most difficult part of the application: Authentication.
 
-There is one step I want to do in preparation for that, let's quickly set up our normalization schema. When we begin to process data from our server, we want to get all necessary information at once, so we don't have to query multiple times. For example getting the post with an user id as author is pretty unpractical if we have to query the server for the user's display name for every post we display. That's why most APIs will give us everything we need in one big object and untangling it can be quite laboursome. That is where `normalizr` comes in. It takes a complex object and splits it up into the individual "entities". For example posts and users. We can then add the user to our redux store and don't have to bother our API again. Ok, so let's install it.
+Alright, with redux and router set up, let's start with the most difficult part
+of the application: Authentication.
+
+There is one step I want to do in preparation for that, let's quickly set up our
+normalization schema. When we begin to process data from our server, we want to
+get all necessary information at once, so we don't have to query multiple times.
+For example getting the post with an user id as author is pretty unpractical if
+we have to query the server for the user's display name for every post we
+display. That's why most APIs will give us everything we need in one big object
+and untangling it can be quite laboursome. That is where `normalizr` comes in.
+It takes a complex object and splits it up into the individual "entities". For
+example posts and users. We can then add the user to our redux store and don't
+have to bother our API again. Ok, so let's install it.
+
 ```
 cd frontend
 npm i -S normalizr
 ```
-To teach normalizr how to untangle our server responses, we need to set up a schema.
+
+To teach normalizr how to untangle our server responses, we need to set up a
+schema.
+
 ```
 [frontend/src/schema/index.js]
 
@@ -668,7 +753,9 @@ export const commentSchema = new schema.Entity(`comments`, {
 });
 ```
 
-Using our schema, we can now use the `normalize` function to process our API responses. Let's modify our users module accordingly and add a `fakeAuth` function.
+Using our schema, we can now use the `normalize` function to process our API
+responses. Let's modify our users module accordingly and add a `fakeAuth`
+function.
 
 ```
 [frontend/src/redux/modules/users.js]
@@ -826,7 +913,9 @@ function allIds(state, action) {
 }
 ```
 
-Ok, next to the UI. I want to use a modal that asks for login information and displays a "Sign in with Google" button. We will use the package `react-modal`, so let's install it.
+Ok, next to the UI. I want to use a modal that asks for login information and
+displays a "Sign in with Google" button. We will use the package `react-modal`,
+so let's install it.
 
 ```
 cd frontend
@@ -866,8 +955,8 @@ export default connect(mapStateToProps, {
 
 As before, we create a new folder and add an `index.js` for easier import.
 
-As you can see there are a few things we have to write in order for this to work.
-First let's build the modal module.
+As you can see there are a few things we have to write in order for this to
+work. First let's build the modal module.
 
 ```
 [frontend/src/redux/modules/modal.js]
@@ -1038,7 +1127,8 @@ export default function Login(props) {
 }
 ```
 
-To give our buttons a uniform look, let's add general button styles to the `index.css`. We will also change the default font for our app here.
+To give our buttons a uniform look, let's add general button styles to the
+`index.css`. We will also change the default font for our app here.
 
 ```
 [frontend/src/index.css]
@@ -1093,8 +1183,8 @@ a {
 }
 ```
 
-To load our new font, we will add this code to our `<head>` in the `index.html` file.
-And while we have the file open, let's also change the title.
+To load our new font, we will add this code to our `<head>` in the `index.html`
+file. And while we have the file open, let's also change the title.
 
 ```
 [frontend/public/index.html]
@@ -1154,7 +1244,8 @@ And now to the `styles.css` for our `Login` component.
 }
 ```
 
-See the Spinner component we imported in our `Login` component. Let's write that, with the help of the awesome SpinKit repository by Tobias Ahlin.
+See the Spinner component we imported in our `Login` component. Let's write
+that, with the help of the awesome SpinKit repository by Tobias Ahlin.
 
 ```
 [frontend/src/components/Spinner/Spinner.js]
@@ -1344,8 +1435,8 @@ And the CSS file, only slightly modified from the Github page.
 
 Don't forget to add `index.js` as usual.
 
-
-Ok, with everything in place let's try adding it to our `Root` container for now.
+Ok, with everything in place let's try adding it to our `Root` container for
+now.
 
 ```
 [frontend/src/containers/Root/Root.js]
@@ -1371,8 +1462,8 @@ RootContainer.propTypes = {
 export default RootContainer;
 ```
 
-Seems to work.
-Changing the `fakeAuth` function to throw an error also gives us feedback, great!
+Seems to work. Changing the `fakeAuth` function to throw an error also gives us
+feedback, great!
 
 ```
 [frontend/src/redux/modules/users.js]
@@ -1391,8 +1482,10 @@ function fakeAuth(username, password) {
 ```
 
 ### Authentication Part 2: Backend
-Let's leave our react application for a moment and look at how we can do authentication on our backend.
-Before we begin adding functionality, I want to structure the code a little bit.
+
+Let's leave our react application for a moment and look at how we can do
+authentication on our backend. Before we begin adding functionality, I want to
+structure the code a little bit.
 
 ```
 cd api-server
@@ -1402,12 +1495,18 @@ mv config.js config
 touch routes/{root.js,categories.js,comments.js,posts.js}
 ```
 
-While we are in the terminal, let's also install all the necessary packages. Actually `morgan` is optional, it is just a logging tool giving us some feedback while we are testing our server.
+While we are in the terminal, let's also install all the necessary packages.
+Actually `morgan` is optional, it is just a logging tool giving us some feedback
+while we are testing our server.
 
 ```
 npm i -S cookie-session passport passport-google-oauth20 passport-local morgan
 ```
-Let's extract the routes from `server.js`. We just have to cut & paste the routes into the respective files and wrap it in a function taking `app` as argument. We also need to require the necessary services and update all `require` statements to the new paths.
+
+Let's extract the routes from `server.js`. We just have to cut & paste the
+routes into the respective files and wrap it in a function taking `app` as
+argument. We also need to require the necessary services and update all
+`require` statements to the new paths.
 
 After doing that our routes will look something like this.
 
@@ -1472,7 +1571,8 @@ app.listen(config.port, () => {
 });
 ```
 
-I want my authentication endpoints separate from my api endpoints. So let's change the routes to reflect that.
+I want my authentication endpoints separate from my api endpoints. So let's
+change the routes to reflect that.
 
 ```
 [api-server/routes/categories.js]
@@ -1507,7 +1607,9 @@ module.exports = app => {
 };
 ```
 
-Next, let's sign up for Google OAuth (or the Google+ API as it is called in the developer console). I will save my client id and secret in a separate `keys.js` file. That way I can add it to my `.gitignore` to keep it secret.
+Next, let's sign up for Google OAuth (or the Google+ API as it is called in the
+developer console). I will save my client id and secret in a separate `keys.js`
+file. That way I can add it to my `.gitignore` to keep it secret.
 
 ```
 [api-server/config/keys.js]
@@ -1519,6 +1621,7 @@ module.exports = {
   cookieKey: 'alsosecret'
 };
 ```
+
 ```
 [.gitignore]
 
@@ -1527,9 +1630,14 @@ node_modules/
 api-server/config/keys.js
 ```
 
-Before we set up passport and the `auth` route, we need a way to store our user data. Normally we would use a database like mongodb for that, but I want to keep the requirements to run the application minimal. That is why we will store it non-persistent in a simple Javascript object.
+Before we set up passport and the `auth` route, we need a way to store our user
+data. Normally we would use a database like mongodb for that, but I want to keep
+the requirements to run the application minimal. That is why we will store it
+non-persistent in a simple Javascript object.
 
-The structure will be similar to the other services, but we won't use the authentication header to keep separate databases. That would make the OAuth flow even more complicated than it already is.
+The structure will be similar to the other services, but we won't use the
+authentication header to keep separate databases. That would make the OAuth flow
+even more complicated than it already is.
 
 ```
 [api-server/services/users.js]
@@ -1688,7 +1796,9 @@ app.listen(config.port, () => {
 
 That should do it!
 
-Before we go on to the next section, let's try it out. To access the api server from our react application, it is convenient to configure proxy in the `package.json` of our frontend.
+Before we go on to the next section, let's try it out. To access the api server
+from our react application, it is convenient to configure proxy in the
+`package.json` of our frontend.
 
 ```
 [frontend/package.json]
@@ -1706,12 +1816,18 @@ Before we go on to the next section, let's try it out. To access the api server 
   ...
 ```
 
-Please note: I changed the port to 5000, use whatever port your express server is running on. We need to restart our development server for the changes to take effect.
+Please note: I changed the port to 5000, use whatever port your express server
+is running on. We need to restart our development server for the changes to take
+effect.
 
-Because we already set up the link correctly in our login modal, let's click on "Login with Google". We are successfully redirected to the Google Sign-in page! We can also verify whether the login info is correctly stored in our session by navigating to `http://localhost:3000/api/current_user`. This should return an object with `uid` and `displayName`.
-
+Because we already set up the link correctly in our login modal, let's click on
+"Login with Google". We are successfully redirected to the Google Sign-in page!
+We can also verify whether the login info is correctly stored in our session by
+navigating to `http://localhost:3000/api/current_user`. This should return an
+object with `uid` and `displayName`.
 
 ### Authentication Part 3: Talking to our backend
+
 To make api requests, we will use the package `axios`.
 
 ```
@@ -1744,7 +1860,8 @@ export function localLogin(username, password) {
 }
 ```
 
-We also need a function to fetch the current user, thereby checking whether we are logged in or not. And a function to log the user out.
+We also need a function to fetch the current user, thereby checking whether we
+are logged in or not. And a function to log the user out.
 
 ```
 [frontend/src/redux/modules/users.js]
@@ -1779,11 +1896,16 @@ export function logout() {
 }
 ```
 
-Now where would we call the `fetchCurrentUser` function? We wouldn't want to check whether the user is logged in on every page change.
+Now where would we call the `fetchCurrentUser` function? We wouldn't want to
+check whether the user is logged in on every page change.
 
-It is not ideal, but it would make sense to fetch the current user inside the Navigation Bar, that way `componentDidMount` will only be called when the user enters the site.
+It is not ideal, but it would make sense to fetch the current user inside the
+Navigation Bar, that way `componentDidMount` will only be called when the user
+enters the site.
 
-Let's encapsulate the whole sign in / out functionality into one component. The outermost container just fetches the current user and thereby checks sign-in status.
+Let's encapsulate the whole sign in / out functionality into one component. The
+outermost container just fetches the current user and thereby checks sign-in
+status.
 
 ```
 [frontend/src/containers/Authentication/AuthenticationContainer.js]
@@ -1806,7 +1928,8 @@ class AuthenticationContainer extends Component {
 export default connect(null, { fetchCurrentUser })(AuthenticationContainer);
 ```
 
-Then we have the `SignInAndOutButton` component which just displays a "Sign In" button when we are logged out and a "Sign Out" button when we are signed in.
+Then we have the `SignInAndOutButton` component which just displays a "Sign In"
+button when we are logged out and a "Sign Out" button when we are signed in.
 
 ```
 [frontend/src/components/SignInAndOutButton/SignInAndOutButton.js]
@@ -1839,7 +1962,9 @@ function mapStateToProps({ users }) {
 export default connect(mapStateToProps)(SignInAndOutButton);
 ```
 
-As you can see, I did not split the component into container and component. In this case I found it easier to keep everything in one file. We can always refactor later if the need arises.
+As you can see, I did not split the component into container and component. In
+this case I found it easier to keep everything in one file. We can always
+refactor later if the need arises.
 
 ```
 [frontend/src/containers/SignInButton/SignInButtonContainer.js]
@@ -1970,7 +2095,9 @@ export default function SignInButton(props) {
 }
 ```
 
-The `SignInButton` component is a little bit long. Let's try to extract the form. I am not completely happy with the form, modal and button being entangled like that. Will revisit later.
+The `SignInButton` component is a little bit long. Let's try to extract the
+form. I am not completely happy with the form, modal and button being entangled
+like that. Will revisit later.
 
 Also the logout button.
 
@@ -1999,36 +2126,53 @@ export default connect(null, { logout })(SignOutButton);
 
 ### List all posts
 
-Our home route will display posts from all categories ordered by score or date. Let's build that.
+Our home route will display posts from all categories ordered by score or date.
+Let's build that.
 
 These are the steps
-- First we fix up our backend to return the data populated with author.
-- We then implement data normalization using the `normalizr` library
-- We also need a `posts` module to handle data from the backend
-- To keep the code clean, we extract some utility functions for common use cases like "Send request and normalize response"
-- In order to create our post list we create the following containers: `AllPosts`, `PostActionBar`, `PostVoteScore`
-- And these components: `PostList`, `PostSummary`, `Post`, `VoteScore`, `ActionBar`
+
+* First we fix up our backend to return the data populated with author.
+* We then implement data normalization using the `normalizr` library
+* We also need a `posts` module to handle data from the backend
+* To keep the code clean, we extract some utility functions for common use cases
+  like "Send request and normalize response"
+* In order to create our post list we create the following containers:
+  `AllPosts`, `PostActionBar`, `PostVoteScore`
+* And these components: `PostList`, `PostSummary`, `Post`, `VoteScore`,
+  `ActionBar`
 
 ### Create new posts
 
-- We will use redux-form
-- Need to add it to the reducer
-- Create new route
-- Add `PostNew` container holding a PostForm
-- We will split `PostForm` into container and component
-I tried being fuzzy about this in the beginning, but separating the business logic keeps everything a lot cleaner.
-- We also need a container `AuthorizedOnly` that checks whether the user is authenticated or not
-- Refactor a lot
-- Add some styles
+* We will use redux-form
+* Need to add it to the reducer
+* Create new route
+* Add `PostNew` container holding a PostForm
+* We will split `PostForm` into container and component I tried being fuzzy
+  about this in the beginning, but separating the business logic keeps
+  everything a lot cleaner.
+* We also need a container `AuthorizedOnly` that checks whether the user is
+  authenticated or not
+* Refactor a lot
+* Add some styles
 
 ### Sorting
 
-- Create new module `ui` holding sort order for posts and the (soon to be implemented) comments
-- Add a `SortOrderControls` component and a container that binds the right functions for posts
-- Add the controls to `PostList`
-- We sort the posts in a container for `PostList`
+* Create new module `ui` holding sort order for posts and the (soon to be
+  implemented) comments
+* Add a `SortOrderControls` component and a container that binds the right
+  functions for posts
+* Add the controls to `PostList`
+* We sort the posts in a container for `PostList`
 
-### Editing posts
-### Showing comments
-### Creating comments
-### Editing comments
+### From there
+
+I stopped documenting here, because it slowed my progress a little bit.
+
+In order I implemented:
+
+* Editing posts
+* Showing comments
+* Creating comments
+* Editing comments
+* Authorization checks for edit and delete
+* a by-user record of votes

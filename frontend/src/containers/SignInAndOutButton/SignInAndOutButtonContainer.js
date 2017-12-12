@@ -1,3 +1,5 @@
+// The button needs some authentication status to know what to render
+
 import SignInAndOutButton from 'components/SignInAndOutButton';
 import { connect } from 'react-redux';
 
