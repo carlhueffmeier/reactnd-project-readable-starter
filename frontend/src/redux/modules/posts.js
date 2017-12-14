@@ -11,11 +11,12 @@ import {
   errorReducer
 } from 'helpers/redux';
 import { stripMetainfo } from 'helpers/utils';
+import { COMMENT_ADDING, COMMENT_DELETING } from 'redux/modules/comments';
 
-const POST_FETCHING = createTypes(`POST_FETCHING`);
-const POST_ADDING = createTypes(`POST_ADDING`);
-const POST_EDITING = createTypes(`POST_EDITING`);
-const POST_DELETING = createTypes(`POST_DELETING`);
+export const POST_FETCHING = createTypes(`POST_FETCHING`);
+export const POST_ADDING = createTypes(`POST_ADDING`);
+export const POST_EDITING = createTypes(`POST_EDITING`);
+export const POST_DELETING = createTypes(`POST_DELETING`);
 
 export function fetchAllPosts() {
   return dispatch => {
@@ -51,7 +52,7 @@ export function fetchPostById(id) {
       dispatch,
       schema: postNormalizeSchema,
       url: `/api/posts/${id}`,
-      errorMessage: `Error fetching posts by ID.`,
+      errorMessage: `Error fetching post by ID.`,
       type: POST_FETCHING
     };
     const handler = new RequestHandler(options);
@@ -107,7 +108,7 @@ export function deletePost(id) {
       schema: postNormalizeSchema,
       url: `/api/posts/${id}`,
       method: `delete`,
-      errorMessage: `Error deleting vote.`,
+      errorMessage: `Error deleting post.`,
       type: POST_DELETING
     };
     const handler = new RequestHandler(options);
@@ -124,7 +125,11 @@ export default combineReducers({
   isDeleting: statusReducer(POST_DELETING),
   byId: byIdReducer({
     entityName: `posts`,
-    deleteActionType: POST_DELETING.SUCCESS
+    deleteActionType: POST_DELETING.SUCCESS,
+    exceptions: {
+      [COMMENT_ADDING.SUCCESS]: changeCommentCountBy(1),
+      [COMMENT_DELETING.SUCCESS]: changeCommentCountBy(-1)
+    }
   }),
   allIds: allIdsReducer({
     entityName: `posts`,
@@ -132,6 +137,20 @@ export default combineReducers({
   }),
   error: errorReducer([POST_FETCHING, POST_ADDING, POST_EDITING, POST_DELETING])
 });
+
+function changeCommentCountBy(difference) {
+  return (state, { payload }) => {
+    const commentId = payload.result;
+    const parentId = payload.entities.comments[commentId].parentId;
+    return {
+      ...state,
+      [parentId]: {
+        ...state[parentId],
+        commentCount: state[parentId].commentCount + difference
+      }
+    };
+  };
+}
 
 // Selectors
 

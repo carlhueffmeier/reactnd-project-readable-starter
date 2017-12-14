@@ -5,8 +5,10 @@ import PropTypes from 'prop-types';
 import { PostType } from 'types';
 import { connect } from 'react-redux';
 import { fetchPostsByCategory, getPostsByCategory } from 'redux/modules/posts';
+import { getCategories } from 'redux/modules/categories';
 import PostList from 'containers/PostList';
 import Spinner from 'components/Spinner';
+import { Redirect } from 'react-router-dom';
 
 class CategoryContainer extends Component {
   static propTypes = {
@@ -31,10 +33,14 @@ class CategoryContainer extends Component {
   }
 
   render() {
-    const { isFetching, error, posts } = this.props;
+    const { isFetching, isCategoryValid, error, posts } = this.props;
 
     if (posts.length === 0 && isFetching) {
       return <Spinner />;
+    }
+
+    if (!isCategoryValid && !isFetching) {
+      return <Redirect to="/" />;
     }
 
     if (posts.length === 0 && error) {
@@ -47,11 +53,14 @@ class CategoryContainer extends Component {
 
 function mapStateToProps(state, { match }) {
   // We get the category from our url
-  const { category } = match.params;
+  const { category: categoryFromUrl } = match.params;
+  const allPaths = getCategories(state).map(category => category.path);
   return {
-    posts: getPostsByCategory(state, category),
-    category,
-    isFetching: state.entities.posts.isFetching,
+    posts: getPostsByCategory(state, categoryFromUrl),
+    category: categoryFromUrl,
+    isCategoryValid: allPaths.includes(categoryFromUrl),
+    isFetching:
+      state.entities.posts.isFetching || state.entities.categories.isFetching,
     error: state.entities.posts.error
   };
 }

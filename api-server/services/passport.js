@@ -43,7 +43,7 @@ if (isGoogleAuthenticationPossible()) {
   );
 } else {
   console.log(
-    'In order to use Google sign in, export googleClientID and googleClientSecret from config/keys.js '
+    "In order to use Google sign in, please add googleClientID and googleClientSecret exports to 'config/keys.js'."
   );
 }
 

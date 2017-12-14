@@ -20,7 +20,15 @@ Post.propTypes = {
 };
 
 export default function Post(props) {
-  const { id, timestamp, title, author, body, category } = props.post;
+  const {
+    id,
+    timestamp,
+    title,
+    author,
+    body,
+    category,
+    commentCount
+  } = props.post;
   return (
     <article className="post">
       <PostVoteScore postId={id} />
@@ -34,10 +42,16 @@ export default function Post(props) {
           category={category}
         />
         <PostBody showNewlines={props.showNewlines}>{body}</PostBody>
+        <p className="post-comment-count">{formatCommentCount(commentCount)}</p>
         <PostActionBar postId={id} />
       </div>
     </article>
   );
+}
+
+function formatCommentCount(count) {
+  if (count == 0) return `No comments`;
+  return `${count} comment${count == 1 ? `` : `s`}`;
 }
 
 function PostTitle({ children, withLink, linkTo }) {

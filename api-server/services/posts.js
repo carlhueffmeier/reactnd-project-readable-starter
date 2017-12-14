@@ -65,7 +65,7 @@ function getByCategory(header, category) {
 function get(header, id) {
   return new Promise(res => {
     const posts = getData(header.token);
-    res(posts[id].deleted ? {} : populate(header, posts[id]));
+    res(!posts[id] || posts[id].deleted ? {} : populate(header, posts[id]));
   });
 }
 
@@ -125,8 +125,8 @@ function edit(header, id, post) {
   });
 }
 
-function incrementCommentCounter(header, id, count) {
-  const data = getData(header.token);
+function incrementCommentCounter(token, id, count) {
+  const data = getData(token);
   if (data[id]) {
     data[id].commentCount += count;
   }

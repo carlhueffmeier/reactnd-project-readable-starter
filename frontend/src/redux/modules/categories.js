@@ -7,7 +7,7 @@ import {
 } from 'helpers/redux';
 import { categorySchema } from 'schema';
 
-const CATEGORY_FETCHING = createTypes(`CATEGORY_FETCHING`);
+export const CATEGORY_FETCHING = createTypes(`CATEGORY_FETCHING`);
 
 export function fetchCategories(id) {
   return dispatch => {

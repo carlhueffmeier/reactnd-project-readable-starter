@@ -6,8 +6,8 @@ import { userVoteSchema } from 'schema';
 import { USER_UNAUTH } from 'redux/modules/users';
 import { postNormalizeSchema, commentNormalizeSchema } from 'schema';
 
-const VOTE_SAVE = createTypes(`VOTE`);
-const VOTE_FETCH = createTypes(`VOTE_FETCH`);
+export const VOTE_SAVE = createTypes(`VOTE`);
+export const VOTE_FETCH = createTypes(`VOTE_FETCH`);
 
 // Actions
 

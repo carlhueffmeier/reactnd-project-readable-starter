@@ -61,7 +61,10 @@ export class RequestHandler {
   }
 
   handleResponse(response) {
+    console.log(`${this.method} ${this.url}`);
+    console.log(response.data);
     const normalizedData = this.normalize(response.data);
+    console.log(`normalized`, response.data);
     this.sendToReducer(normalizedData);
   }
 
@@ -127,23 +130,34 @@ export function errorReducer(actionTypes) {
 }
 
 // Generic reducer creators for normalized server responses
-// for use with the RequestHandler helper class above
-export function byIdReducer({ entityName, deleteActionType }) {
+// for use with the RequestHandler helper class above.
+// `exceptions` receives a map of action types to transform functions
+// receiving (state, action) returning the transformed state.
+export function byIdReducer({ entityName, deleteActionType, exceptions = {} }) {
+  const exceptionTypes = Object.keys(exceptions);
   return (state = {}, action) => {
     // Delete
     if (action.type === deleteActionType) {
       return omit(state, action.payload.result);
     }
+
+    let newState = { ...state };
+
     // Add
     const entitiesToAdd = get(action, `payload.entities.${entityName}`);
     if (entitiesToAdd) {
-      return {
-        ...state,
+      newState = {
+        ...newState,
         ...entitiesToAdd
       };
     }
 
-    return state;
+    // Apply transformations specified in exceptions
+    if (exceptionTypes.includes(action.type)) {
+      newState = exceptions[action.type](newState, action);
+    }
+
+    return newState;
   };
 }
 

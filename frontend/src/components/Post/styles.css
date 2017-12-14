@@ -24,3 +24,9 @@
 .post-body {
   margin: 1rem 0;
 }
+
+.post-comment-count {
+  color: #666;
+  font-size: 0.707rem;
+  margin-top: 0.3rem;
+}

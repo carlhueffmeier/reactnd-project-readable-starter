@@ -56,6 +56,7 @@ export const commentNormalizeSchema = new schema.Entity(
 // Adding this step allows us to keep our reducers simple.
 function processUserVotes(type) {
   return (value, parent, key) => {
+    if (!value.id) return null;
     const result = { ...value };
     result.userVote = {
       id: value.id,

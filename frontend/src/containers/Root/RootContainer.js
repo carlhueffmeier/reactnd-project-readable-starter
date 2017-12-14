@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import Navigation from 'components/Navigation';
 import AllPosts from 'containers/AllPosts';
 import PostNew from 'containers/PostNew';
@@ -31,6 +31,7 @@ export default function RootContainer({ store }) {
             <Route exact path="/edit/:post_id" component={PostEdit} />
             <Route exact path="/:category" component={Category} />
             <Route exact path="/:category/:post_id" component={PostDetails} />
+            <Redirect to="/" />
           </Switch>
         </div>
       </div>

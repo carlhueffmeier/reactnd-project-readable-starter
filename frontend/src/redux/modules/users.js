@@ -7,14 +7,13 @@ import { getCommentById } from 'redux/modules/comments';
 import { fetchAllVotes } from 'redux/modules/userVotes';
 import axios from 'axios';
 
-const USER_AUTH = `USER_AUTH`;
-// Exporting to allow data flushing on sign out
+export const USER_AUTH = `USER_AUTH`;
 export const USER_UNAUTH = `USER_UNAUTH`;
-const USER_FETCHING = `USER_FETCHING`;
-const USER_FETCHING_ERROR = `USER_FETCHING_ERROR`;
-const USER_FETCHING_SUCCESS = `USER_FETCHING_SUCCESS`;
-const USER_FETCHING_CANCEL = `USER_FETCHING_CANCEL`;
-const USER_FETCHING_DISMISS_ERROR = `USER_FETCHING_DISMISS_ERROR`;
+export const USER_FETCHING = `USER_FETCHING`;
+export const USER_FETCHING_ERROR = `USER_FETCHING_ERROR`;
+export const USER_FETCHING_SUCCESS = `USER_FETCHING_SUCCESS`;
+export const USER_FETCHING_CANCEL = `USER_FETCHING_CANCEL`;
+export const USER_FETCHING_DISMISS_ERROR = `USER_FETCHING_DISMISS_ERROR`;
 
 function userAuth(uid) {
   return {

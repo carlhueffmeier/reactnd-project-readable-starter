@@ -1,6 +1,5 @@
 // Post creation page.
 // It renders the form when the user is logged in.
-// I am being lazy and ignore the fetching state for now.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';

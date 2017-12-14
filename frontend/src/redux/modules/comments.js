@@ -13,15 +13,10 @@ import {
 } from 'helpers/redux';
 import { stripMetainfo } from 'helpers/utils';
 
-const COMMENT_FETCHING = createTypes(`COMMENT_FETCHING`);
-// Exporting for form reducer:
-// We want to reset the "new comment" form after the new comment is succesfully saved.
+export const COMMENT_FETCHING = createTypes(`COMMENT_FETCHING`);
 export const COMMENT_ADDING = createTypes(`COMMENT_ADDING`);
-// Exporting for ui reducer:
-// We want to reset the `commentEditing` field when editing is successful.
-// Reseting it will close the edit form
 export const COMMENT_EDITING = createTypes(`COMMENT_EDITING`);
-const COMMENT_DELETING = createTypes(`COMMENT_DELETING`);
+export const COMMENT_DELETING = createTypes(`COMMENT_DELETING`);
 
 export function fetchCommentsForPost(id) {
   return dispatch => {

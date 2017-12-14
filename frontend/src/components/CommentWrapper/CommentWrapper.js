@@ -1,3 +1,6 @@
+// Displays the unchangeable "static" parts of the comment.
+// `children` will be responsible for the actual "body" of the comment.
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { UserType } from 'types';
