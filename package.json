@@ -1,24 +1,26 @@
 {
-  "name": "reactnd-readable",
-  "version": "1.0.0",
-  "description":
-    "This is the second project of the Udacity React Nanodegree program. It consists of a web app that allows users to create, delete, edit and vote on posts and comments.",
+  "name": "readable",
+  "version": "0.1.0",
+  "description": "Simple reddit-like content plattform",
   "scripts": {
-    "server": "cd api-server && npm run dev",
-    "client": "cd frontend && npm start",
-    "start": "concurrently \"npm run server\" \"npm run client\""
+    "postinstall": "run-p install:server install:client",
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "start:server": "cd server && npm run dev",
+    "start:client": "cd client && npm start",
+    "start": "run-p start:server start:client"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/carlhueffmeier/reactnd-readable.git"
   },
   "author": "Carl Hüffmeier",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/carlhueffmeier/reactnd-readable/issues"
   },
   "homepage": "https://github.com/carlhueffmeier/reactnd-readable#readme",
   "devDependencies": {
-    "concurrently": "^3.5.0"
+    "npm-run-all": "^4.1.3"
   }
 }
